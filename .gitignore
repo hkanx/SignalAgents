@@ -2,3 +2,4 @@ __pycache__/
 *.py[cod]
 .env
 .venv/
+utils/reddit_affiliate_filter.py

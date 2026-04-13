@@ -1,6 +1,6 @@
 import hashlib
 import os
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from typing import Any, Dict, List, Optional, Tuple
 
 import pandas as pd
@@ -9,11 +9,12 @@ import streamlit as st
 from dotenv import load_dotenv
 
 from analyzer import analyze_review
+from utils.reddit_affiliate_filter import is_affiliate_relevant
 
 load_dotenv()
 
 DEFAULT_COMPANY_NAME = "Giftcards.com"
-DEFAULT_COMPANY_SYNONYMS = "giftcards.com, giftcardscom, gift cards.com"
+DEFAULT_COMPANY_SYNONYMS = "giftcards.com, bhn, blackhawk network, giftcardmall, CashStar, tango card"
 DEFAULT_REDDIT_USER_AGENT = "signalagents-brand-monitor/0.1"
 
 REDDIT_SEARCH_ENDPOINT = "https://www.reddit.com/search.json"
@@ -71,7 +72,8 @@ def fetch_reddit_reviews(
     synonyms_raw: str,
     subreddit_name: str,
     limit_per_term: int,
-    time_filter: str,
+    years_back: int,
+    max_pages: int = 5,
 ) -> Tuple[List[Dict[str, Any]], int, Optional[str]]:
     terms = _build_company_terms(company_name, synonyms_raw)
     if not terms:
@@ -81,75 +83,110 @@ def fetch_reddit_reviews(
         "User-Agent": os.getenv("REDDIT_USER_AGENT", DEFAULT_REDDIT_USER_AGENT),
     }
 
+    now_utc = datetime.now(timezone.utc)
+    cutoff = now_utc - timedelta(days=365 * years_back)
+
     records: List[Dict[str, Any]] = []
     skipped = 0
     seen_submission_ids = set()
 
     try:
         for term in terms:
-            if subreddit_name.strip() and subreddit_name.strip().lower() != "all":
-                endpoint = f"https://www.reddit.com/r/{subreddit_name.strip()}/search.json"
-                params = {
-                    "q": term,
-                    "limit": limit_per_term,
-                    "sort": "new",
-                    "t": time_filter,
-                    "restrict_sr": 1,
-                }
-            else:
-                endpoint = REDDIT_SEARCH_ENDPOINT
-                params = {
-                    "q": term,
-                    "limit": limit_per_term,
-                    "sort": "new",
-                    "t": time_filter,
-                }
+            after_token: Optional[str] = None
 
-            response = requests.get(endpoint, headers=headers, params=params, timeout=20)
-            if response.status_code != 200:
-                return [], skipped, f"Reddit public API error: {response.status_code} {response.text}"
-
-            payload = response.json()
-            for child in payload.get("data", {}).get("children", []):
-                submission = child.get("data", {})
-                submission_id = str(submission.get("id") or "").strip()
-                if not submission_id or submission_id in seen_submission_ids:
-                    continue
-
-                seen_submission_ids.add(submission_id)
-
-                title = str(submission.get("title") or "").strip()
-                body = str(submission.get("selftext") or "").strip()
-                text = f"{title}\n\n{body}".strip()
-
-                if not text:
-                    skipped += 1
-                    continue
-
-                created_utc = submission.get("created_utc")
-                if created_utc is None:
-                    created_iso = datetime.now(timezone.utc).isoformat()
-                else:
-                    created_iso = datetime.fromtimestamp(float(created_utc), tz=timezone.utc).isoformat()
-
-                permalink = str(submission.get("permalink") or "").strip()
-                source_ref = f"https://reddit.com{permalink}" if permalink else ""
-
-                records.append(
-                    {
-                        "review_id": f"reddit_{submission_id}",
-                        "platform": "reddit",
-                        "source": "reddit-public",
-                        "source_ref": source_ref,
-                        "date": created_iso,
-                        "title": title,
-                        "text": text,
-                        "author": str(submission.get("author") or "[deleted]"),
-                        "subreddit": str(submission.get("subreddit") or ""),
-                        "score": int(submission.get("score") or 0),
-                        "matched_term": term,
+            for _ in range(max_pages):
+                if subreddit_name.strip() and subreddit_name.strip().lower() != "all":
+                    endpoint = f"https://www.reddit.com/r/{subreddit_name.strip()}/search.json"
+                    params = {
+                        "q": term,
+                        "limit": limit_per_term,
+                        "sort": "new",
+                        "t": "all",
+                        "restrict_sr": 1,
                     }
-                )
+                else:
+                    endpoint = REDDIT_SEARCH_ENDPOINT
+                    params = {
+                        "q": term,
+                        "limit": limit_per_term,
+                        "sort": "new",
+                        "t": "all",
+                    }
+
+                if after_token:
+                    params["after"] = after_token
+
+                response = requests.get(endpoint, headers=headers, params=params, timeout=20)
+                if response.status_code != 200:
+                    return [], skipped, f"Reddit public API error: {response.status_code} {response.text}"
+
+                payload = response.json()
+                listing_data = payload.get("data", {})
+                children = listing_data.get("children", [])
+                if not children:
+                    break
+
+                oldest_in_page_in_window = False
+
+                for child in children:
+                    submission = child.get("data", {})
+                    submission_id = str(submission.get("id") or "").strip()
+                    if not submission_id or submission_id in seen_submission_ids:
+                        continue
+
+                    created_utc = submission.get("created_utc")
+                    if created_utc is None:
+                        skipped += 1
+                        continue
+
+                    created_dt = datetime.fromtimestamp(float(created_utc), tz=timezone.utc)
+                    if created_dt < cutoff:
+                        continue
+
+                    oldest_in_page_in_window = True
+                    seen_submission_ids.add(submission_id)
+
+                    title = str(submission.get("title") or "").strip()
+                    body = str(submission.get("selftext") or "").strip()
+
+                    relevant, reason = is_affiliate_relevant(title=title, body=body)
+                    if not relevant:
+                        skipped += 1
+                        continue
+
+                    text = f"{title}\n\n{body}".strip()
+                    if not text:
+                        skipped += 1
+                        continue
+
+                    permalink = str(submission.get("permalink") or "").strip()
+                    source_ref = f"https://reddit.com{permalink}" if permalink else ""
+
+                    records.append(
+                        {
+                            "review_id": f"reddit_{submission_id}",
+                            "platform": "reddit",
+                            "source": "reddit-public",
+                            "source_ref": source_ref,
+                            "date": created_dt.isoformat(),
+                            "title": title,
+                            "text": text,
+                            "author": str(submission.get("author") or "[deleted]"),
+                            "subreddit": str(submission.get("subreddit") or ""),
+                            "score": int(submission.get("score") or 0),
+                            "matched_term": term,
+                            "filter_reason": reason,
+                        }
+                    )
+
+                # If this page already has no items in our time window, later pages will be older.
+                if not oldest_in_page_in_window:
+                    break
+
+                after_token = listing_data.get("after")
+                if not after_token:
+                    break
+
     except Exception as exc:  # noqa: BLE001
         return [], skipped, f"Reddit public request failed: {exc}"
 
@@ -240,10 +277,14 @@ def main() -> None:
     st.sidebar.markdown("### Reddit Search")
     subreddit_name = st.sidebar.text_input("Subreddit", "all")
     reddit_limit_per_term = st.sidebar.slider("Reddit posts per term", min_value=5, max_value=100, value=20, step=5)
-    time_filter = st.sidebar.selectbox("Reddit time filter", ["hour", "day", "week", "month", "year", "all"], index=2)
+    years_back = st.sidebar.selectbox("Reddit lookback", [1, 2, 3, 4, 5], index=0, format_func=lambda y: f"Last {y} year{'s' if y > 1 else ''}")
+    max_pages = st.sidebar.slider("Reddit pages per term", min_value=1, max_value=10, value=5, step=1)
 
-    st.sidebar.markdown("### Web Search (Bing)")
-    web_count_per_term = st.sidebar.slider("Web results per term", min_value=3, max_value=20, value=5, step=1)
+    if data_source in {"Web", "Reddit + Web"}:
+        st.sidebar.markdown("### Web Search (Bing)")
+        web_count_per_term = st.sidebar.slider("Web results per term", min_value=3, max_value=20, value=5, step=1)
+    else:
+        web_count_per_term = 0
 
     run_analysis = st.sidebar.button("Run Analysis", type="primary")
 
@@ -260,7 +301,8 @@ def main() -> None:
                 synonyms_raw=company_synonyms,
                 subreddit_name=subreddit_name,
                 limit_per_term=reddit_limit_per_term,
-                time_filter=time_filter,
+                years_back=int(years_back),
+                max_pages=int(max_pages),
             )
             skipped += reddit_skipped
             if reddit_error:
@@ -312,7 +354,7 @@ def main() -> None:
     st.caption(f"Collected {raw_count} records, deduped to {deduped_count} records.")
 
     if skipped > 0:
-        st.warning(f"Skipped {skipped} invalid or empty record(s) from selected source(s).")
+        st.warning(f"Skipped {skipped} invalid, out-of-window, or irrelevant record(s) from selected source(s).")
 
     negative_count = int((df.get("sentiment", pd.Series(dtype=str)).str.lower() == "negative").sum())
     st.metric("Negative Reviews", negative_count)
@@ -356,6 +398,7 @@ def main() -> None:
             "reason",
             "source_ref",
             "error",
+            "filter_reason",
         ]
         if col in df.columns
     ]
