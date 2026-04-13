@@ -229,7 +229,7 @@ def main() -> None:
     st.set_page_config(page_title="SignalAgents: Brand Image Monitor", layout="wide")
     st.title("SignalAgents: Brand Image Monitor")
 
-    st.caption("Monitor Giftcards.com sentiment from real Reddit and web-search data, then analyze with OpenAI.")
+    st.caption("Monitor brand image and sentiment from real Reddit and web-search data, then analyze.")
 
     data_source = st.sidebar.selectbox("Data source", ["Reddit", "Web", "Reddit + Web"])
 

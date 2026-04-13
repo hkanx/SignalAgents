@@ -1,9 +1,9 @@
 # SignalAgents: Brand Image Monitor
 
-A simple local Streamlit app that monitors Giftcards.com sentiment using real Reddit public search data and Bing web-search data, then analyzes review text with the OpenAI API.
+A simple app that monitors brand sentiment using real Reddit public search data and Bing web-search data, then analyzes review text with the OpenAI API.
 
 ## Features
-- Giftcards.com preset with editable company synonyms
+- Presets with editable company synonyms
 - Reddit ingestion via public JSON endpoint (`https://www.reddit.com/search.json`) using `requests`
 - Web-search ingestion via Bing Web Search API
 - Source modes: `Reddit`, `Web`, `Reddit + Web`
