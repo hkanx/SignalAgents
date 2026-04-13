@@ -20,13 +20,13 @@ ALLOWED_SEVERITIES = {"low", "medium", "high"}
 
 PROMPT_TEMPLATE = """You are a review analysis assistant.
 Analyze the review text and return ONLY valid JSON with this exact schema:
-{
+{{
   "sentiment": "positive | neutral | negative",
   "confidence": float,
   "category": "Product Issue | Order Issue | UX Issue | Customer Support | Pricing | General Feedback",
   "severity": "low | medium | high",
   "reason": "short explanation"
-}
+}}
 Rules:
 - Output must be JSON only. No markdown. No extra keys.
 - confidence must be between 0.0 and 1.0.
@@ -82,6 +82,10 @@ def _validate_output(payload: Dict[str, Any]) -> Dict[str, Any]:
     }
 
 
+def _build_prompt(review_text: str) -> str:
+    return PROMPT_TEMPLATE.format(review_text=review_text)
+
+
 def analyze_review(text: str) -> Dict[str, Any]:
     """Analyze a single review with OpenAI and return structured JSON."""
     if not isinstance(text, str) or not text.strip():
@@ -95,9 +99,14 @@ def analyze_review(text: str) -> Dict[str, Any]:
     client = OpenAI(api_key=api_key)
 
     try:
+        prompt = _build_prompt(text.strip())
+    except Exception as exc:  # noqa: BLE001
+        return _error_result(f"Prompt build failed: {exc}")
+
+    try:
         response = client.responses.create(
             model=model,
-            input=PROMPT_TEMPLATE.format(review_text=text.strip()),
+            input=prompt,
             temperature=0,
         )
     except Exception as exc:  # noqa: BLE001
