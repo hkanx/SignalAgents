@@ -19,8 +19,8 @@ Filtering logic lives in a separate reusable script:
 - `utils/reddit_affiliate_filter.py`
 
 It includes:
-- Include terms (e.g., `blackhawk network`, `bhn`, `giftcards.com`, `giftcards`, `giftcardmall`)
-- Exclude terms for false positives (e.g., `blackhawks`, `hockey`, `job`, `career`, `hiring`, etc.)
+- Include terms 
+- Exclude terms for false positives
 
 ## Requirements
 - Python 3.10+
