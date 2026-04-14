@@ -9,7 +9,7 @@ import streamlit as st
 from dotenv import load_dotenv
 
 from analyzer import analyze_review
-from utils.reddit_affiliate_filter import is_affiliate_relevant
+from utils.reddit_affiliate_filter import score_affiliate_relevance
 
 load_dotenv()
 
@@ -19,6 +19,7 @@ DEFAULT_REDDIT_USER_AGENT = "signalagents-brand-monitor/0.1"
 
 REDDIT_SEARCH_ENDPOINT = "https://www.reddit.com/search.json"
 BING_ENDPOINT = "https://api.bing.microsoft.com/v7.0/search"
+DEFAULT_RELEVANCE_THRESHOLD = 2.0
 
 
 def _build_company_terms(company_name: str, synonyms_raw: str) -> List[str]:
@@ -73,6 +74,7 @@ def fetch_reddit_reviews(
     subreddit_name: str,
     limit_per_term: int,
     years_back: int,
+    relevance_threshold: float,
     max_pages: int = 5,
 ) -> Tuple[List[Dict[str, Any]], int, Optional[str]]:
     terms = _build_company_terms(company_name, synonyms_raw)
@@ -149,8 +151,8 @@ def fetch_reddit_reviews(
                     title = str(submission.get("title") or "").strip()
                     body = str(submission.get("selftext") or "").strip()
 
-                    relevant, reason = is_affiliate_relevant(title=title, body=body)
-                    if not relevant:
+                    relevance_score, reason = score_affiliate_relevance(title=title, body=body)
+                    if relevance_score < relevance_threshold:
                         skipped += 1
                         continue
 
@@ -169,6 +171,7 @@ def fetch_reddit_reviews(
                             "source": "reddit-public",
                             "source_ref": source_ref,
                             "date": created_dt.isoformat(),
+                            "posted_at": created_dt.astimezone().strftime("%Y-%m-%d %H:%M:%S %Z"),
                             "title": title,
                             "text": text,
                             "author": str(submission.get("author") or "[deleted]"),
@@ -176,6 +179,7 @@ def fetch_reddit_reviews(
                             "score": int(submission.get("score") or 0),
                             "matched_term": term,
                             "filter_reason": reason,
+                            "relevance_score": round(relevance_score, 2),
                         }
                     )
 
@@ -256,6 +260,19 @@ def analyze_reviews(reviews: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
     return analyzed
 
 
+def _rank_reviews_for_analysis(reviews: List[Dict[str, Any]], top_n: int) -> List[Dict[str, Any]]:
+    sorted_reviews = sorted(
+        reviews,
+        key=lambda r: (
+            float(r.get("relevance_score", 0.0)),
+            int(r.get("score", 0)),
+            str(r.get("date", "")),
+        ),
+        reverse=True,
+    )
+    return sorted_reviews[:top_n]
+
+
 def style_negative_rows(row: pd.Series) -> List[str]:
     if str(row.get("sentiment", "")).lower() == "negative":
         return ["background-color: #ffe6e6"] * len(row)
@@ -279,6 +296,14 @@ def main() -> None:
     reddit_limit_per_term = st.sidebar.slider("Reddit posts per term", min_value=5, max_value=100, value=20, step=5)
     years_back = st.sidebar.selectbox("Reddit lookback", [1, 2, 3, 4, 5], index=0, format_func=lambda y: f"Last {y} year{'s' if y > 1 else ''}")
     max_pages = st.sidebar.slider("Reddit pages per term", min_value=1, max_value=10, value=5, step=1)
+    relevance_threshold = st.sidebar.slider(
+        "Affiliate relevance threshold",
+        min_value=1.0,
+        max_value=4.0,
+        value=DEFAULT_RELEVANCE_THRESHOLD,
+        step=0.5,
+    )
+    max_analyzed_reviews = st.sidebar.slider("Max reviews to analyze", min_value=10, max_value=100, value=30, step=5)
 
     if data_source in {"Web", "Reddit + Web"}:
         st.sidebar.markdown("### Web Search (Bing)")
@@ -302,6 +327,7 @@ def main() -> None:
                 subreddit_name=subreddit_name,
                 limit_per_term=reddit_limit_per_term,
                 years_back=int(years_back),
+                relevance_threshold=float(relevance_threshold),
                 max_pages=int(max_pages),
             )
             skipped += reddit_skipped
@@ -323,13 +349,14 @@ def main() -> None:
             combined_reviews.extend(web_reviews)
 
         deduped_reviews = _dedupe_reviews(combined_reviews)
+        selected_reviews = _rank_reviews_for_analysis(deduped_reviews, top_n=int(max_analyzed_reviews))
 
-        if not deduped_reviews:
+        if not selected_reviews:
             st.warning("No valid real reviews found from selected sources. Update inputs and try again.")
             st.stop()
 
         with st.spinner("Analyzing reviews with OpenAI..."):
-            results = analyze_reviews(deduped_reviews)
+            results = analyze_reviews(selected_reviews)
 
         st.session_state.analysis_results = {
             "rows": results,
@@ -337,6 +364,7 @@ def main() -> None:
             "source": data_source,
             "raw_count": len(combined_reviews),
             "deduped_count": len(deduped_reviews),
+            "analyzed_count": len(selected_reviews),
         }
 
     state = st.session_state.analysis_results
@@ -348,16 +376,26 @@ def main() -> None:
     skipped = state["skipped"]
     raw_count = state.get("raw_count", len(rows))
     deduped_count = state.get("deduped_count", len(rows))
+    analyzed_count = state.get("analyzed_count", len(rows))
 
     df = pd.DataFrame(rows)
 
-    st.caption(f"Collected {raw_count} records, deduped to {deduped_count} records.")
+    st.caption(
+        f"Collected {raw_count} records, deduped to {deduped_count} records, analyzed top {analyzed_count} records."
+    )
 
     if skipped > 0:
         st.warning(f"Skipped {skipped} invalid, out-of-window, or irrelevant record(s) from selected source(s).")
 
     negative_count = int((df.get("sentiment", pd.Series(dtype=str)).str.lower() == "negative").sum())
     st.metric("Negative Reviews", negative_count)
+    avg_star = float(df["star_rating"].mean()) if "star_rating" in df.columns and not df.empty else 0.0
+    avg_sentiment_score = (
+        float(df["sentiment_score"].mean()) if "sentiment_score" in df.columns and not df.empty else 0.0
+    )
+    left, right = st.columns(2)
+    left.metric("Average Star Rating", f"{avg_star:.2f}")
+    right.metric("Average Sentiment Score", f"{avg_sentiment_score:.2f}")
 
     sentiment_counts = (
         df.get("sentiment", pd.Series(dtype=str))
@@ -382,6 +420,19 @@ def main() -> None:
         st.subheader("Platform Breakdown")
         st.bar_chart(platform_counts.set_index("platform")["count"])
 
+    if "star_rating" in df.columns and not df.empty:
+        star_counts = (
+            df["star_rating"]
+            .astype(int)
+            .value_counts()
+            .sort_index()
+            .rename_axis("star_rating")
+            .reset_index(name="count")
+        )
+        if not star_counts.empty:
+            st.subheader("Star Rating Distribution")
+            st.bar_chart(star_counts.set_index("star_rating")["count"])
+
     st.subheader("Reviews")
     table_columns = [
         col
@@ -389,12 +440,17 @@ def main() -> None:
             "platform",
             "source",
             "subreddit",
+            "posted_at",
+            "date",
             "title",
             "text",
             "sentiment",
+            "sentiment_score",
+            "star_rating",
             "category",
             "severity",
             "confidence",
+            "relevance_score",
             "reason",
             "source_ref",
             "error",
