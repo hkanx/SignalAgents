@@ -123,7 +123,7 @@ def analyze_review(text: str) -> Dict[str, Any]:
             temperature=0,
         )
     except Exception as exc:  # noqa: BLE001
-        return _error_result(f"OpenAI request failed: {exc}")
+        return _error_result(f"AI model request failed: {exc}")
 
     try:
         raw_text = response.output_text

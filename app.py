@@ -22,6 +22,11 @@ REDDIT_SEARCH_ENDPOINT = "https://www.reddit.com/search.json"
 BING_ENDPOINT = "https://api.bing.microsoft.com/v7.0/search"
 DEFAULT_RELEVANCE_THRESHOLD = 2.5
 
+COLOR_GOOD = "#2ca02c"
+COLOR_BAD = "#d62728"
+COLOR_NEUTRAL = "#9e9e9e"
+COLOR_INFO = "#1f77b4"
+
 
 def _build_company_terms(company_name: str, synonyms_raw: str) -> List[str]:
     terms: List[str] = []
@@ -88,6 +93,12 @@ def _build_response_template(row: pd.Series) -> str:
     )
 
 
+def _one_based_index(df: pd.DataFrame) -> pd.DataFrame:
+    out = df.copy()
+    out.index = range(1, len(out) + 1)
+    return out
+
+
 def _render_priority_case_queue(df: pd.DataFrame, key_prefix: str, show_draft_workspace: bool) -> None:
     st.markdown("**Priority Case Queue (Highest-Risk Posts)**")
     queue_df = df.copy()
@@ -124,7 +135,7 @@ def _render_priority_case_queue(df: pd.DataFrame, key_prefix: str, show_draft_wo
         ]
         if col in queue_view_df.columns
     ]
-    st.dataframe(queue_view_df[queue_cols], use_container_width=True)
+    st.dataframe(_one_based_index(queue_view_df[queue_cols]), use_container_width=True)
 
     if not show_draft_workspace:
         return
@@ -398,7 +409,7 @@ def main() -> None:
     st.set_page_config(page_title="SignalAgents: Brand Image Monitor", layout="wide")
     st.title("SignalAgents: Brand Image Monitor")
 
-    st.caption("Monitor brand image and sentiment from real Reddit and web-search data, then analyze.")
+    st.caption("Brand image and sentiment monitoring platform from real user content and web-search data. Surfaces early negative trends, generate insights, and accelerates brand responses.")
 
     data_source = st.sidebar.selectbox("Data source", ["Reddit", "Web", "Reddit + Web"])
 
@@ -472,7 +483,7 @@ def main() -> None:
             st.warning("No valid real reviews found from selected sources. Update inputs and try again.")
             st.stop()
 
-        with st.spinner("Analyzing reviews with OpenAI..."):
+        with st.spinner("Analyzing reviews..."):
             results = analyze_reviews(selected_reviews)
 
         st.session_state.analysis_results = {
@@ -569,7 +580,7 @@ def main() -> None:
 
     avg_sentiment_improvement = recent_avg_sent - baseline_avg_sent
     positive_share_improvement = recent_pos_share - baseline_pos_share
-    negative_share_improvement = baseline_neg_share - recent_neg_share
+    negative_share_change = recent_neg_share - baseline_neg_share
     net_sentiment_improvement = recent_net_sent - baseline_net_sent
 
     if brand_health_summary["negative_share"] >= 0.45 or negative_delta_pts >= 8:
@@ -602,7 +613,7 @@ def main() -> None:
             timeline_df = pivot.div(pivot.sum(axis=1).replace(0, 1), axis=0).reset_index()
             timeline_df.rename(columns={"positive": "Positive", "neutral": "Neutral", "negative": "Negative"}, inplace=True)
 
-    tabs = st.tabs(["Executive Summary", "Customer Response", "Data Quality"])
+    tabs = st.tabs(["Executive Brand Image Summary", "Customer Response Generator", "Data Analytics"])
 
     with tabs[0]:
         st.subheader("Brand Health Summary")
@@ -617,12 +628,39 @@ def main() -> None:
         m1.metric("Brand Image Score", f"{brand_image_score}/100")
         m2.metric("Avg Sentiment Score", f"{avg_sentiment:.2f}", delta=f"{avg_sentiment_improvement:+.2f}", delta_color="normal")
         m3.metric("Positive Mentions %", f"{positive_share * 100:.1f}%", delta=f"{positive_share_improvement * 100:+.1f} pts", delta_color="normal")
-        m4.metric("Negative Mentions %", f"{negative_share * 100:.1f}%", delta=f"{negative_share_improvement * 100:+.1f} pts", delta_color="normal")
+        m4.metric("Negative Mentions %", f"{negative_share * 100:.1f}%", delta=f"{negative_share_change * 100:+.1f} pts", delta_color="inverse")
         m5.metric("Net Sentiment Score", f"{net_sentiment:.2f}", delta=f"{net_sentiment_improvement:+.2f}", delta_color="normal")
+        if positive_share == 0:
+            st.warning("No positive mentions were detected in this run. This can happen when the current query mix is complaint-heavy.")
 
         st.markdown("**Sentiment Trend Over Time**")
         if not timeline_df.empty:
-            st.line_chart(timeline_df.set_index("period")[["Positive", "Neutral", "Negative"]])
+            trend_long = timeline_df.melt(
+                id_vars=["period"],
+                value_vars=["Positive", "Neutral", "Negative"],
+                var_name="sentiment",
+                value_name="share",
+            )
+            st.vega_lite_chart(
+                trend_long,
+                {
+                    "mark": {"type": "line", "point": True},
+                    "encoding": {
+                        "x": {"field": "period", "type": "temporal", "title": "Month"},
+                        "y": {"field": "share", "type": "quantitative", "title": "Share"},
+                        "color": {
+                            "field": "sentiment",
+                            "type": "nominal",
+                            "scale": {
+                                "domain": ["Positive", "Neutral", "Negative"],
+                                "range": [COLOR_GOOD, COLOR_NEUTRAL, COLOR_BAD],
+                            },
+                        },
+                        "tooltip": [{"field": "period"}, {"field": "sentiment"}, {"field": "share"}],
+                    },
+                },
+                use_container_width=True,
+            )
         else:
             st.info("Not enough timestamped data for trend chart.")
 
@@ -641,7 +679,7 @@ def main() -> None:
                             "color": {
                                 "field": "sentiment",
                                 "type": "nominal",
-                                "scale": {"domain": ["Positive", "Neutral", "Negative"], "range": ["#2ca02c", "#9e9e9e", "#d62728"]},
+                                "scale": {"domain": ["Positive", "Neutral", "Negative"], "range": [COLOR_GOOD, COLOR_NEUTRAL, COLOR_BAD]},
                             },
                             "tooltip": [{"field": "sentiment"}, {"field": "count"}],
                         },
@@ -654,8 +692,20 @@ def main() -> None:
             st.markdown("**Which Channels/Subreddits To Look Out For**")
             subreddit_risk_df = pd.DataFrame(keyword_diagnostics.get("subreddit_risk", []))
             if not subreddit_risk_df.empty:
-                st.dataframe(subreddit_risk_df.head(10), use_container_width=True)
-                st.bar_chart(subreddit_risk_df.set_index("subreddit")["negative_rate"])
+                st.dataframe(_one_based_index(subreddit_risk_df.head(10)), use_container_width=True)
+                st.vega_lite_chart(
+                    subreddit_risk_df.head(10),
+                    {
+                        "mark": "bar",
+                        "encoding": {
+                            "x": {"field": "subreddit", "type": "nominal", "sort": "-y"},
+                            "y": {"field": "negative_rate", "type": "quantitative"},
+                            "color": {"value": COLOR_BAD},
+                            "tooltip": [{"field": "subreddit"}, {"field": "negative_rate"}, {"field": "volume"}],
+                        },
+                    },
+                    use_container_width=True,
+                )
             else:
                 st.info("Not enough subreddit volume for risk comparison.")
 
@@ -665,7 +715,7 @@ def main() -> None:
             topic_df = issue_df.copy()
             topic_df["topic_score"] = (1 - (2 * topic_df["negative_rate"])).round(2)
             st.dataframe(
-                topic_df[["issue", "topic_score", "mentions", "negative_rate", "what_to_answer", "what_to_fix"]],
+                _one_based_index(topic_df[["issue", "topic_score", "mentions", "negative_rate", "what_to_answer", "what_to_fix"]]),
                 use_container_width=True,
             )
 
@@ -678,7 +728,11 @@ def main() -> None:
                         "x": {"field": "mentions", "type": "quantitative", "title": "Volume (Mentions)"},
                         "y": {"field": "topic_score", "type": "quantitative", "title": "Sentiment Score (-1 to 1)"},
                         "size": {"field": "severity_score", "type": "quantitative"},
-                        "color": {"field": "negative_rate", "type": "quantitative", "scale": {"scheme": "redyellowgreen"}},
+                        "color": {
+                            "field": "negative_rate",
+                            "type": "quantitative",
+                            "scale": {"domain": [0, 1], "range": [COLOR_GOOD, COLOR_NEUTRAL, COLOR_BAD]},
+                        },
                         "tooltip": [
                             {"field": "issue"},
                             {"field": "mentions"},
@@ -693,53 +747,35 @@ def main() -> None:
         else:
             st.info("No topic diagnosis available yet.")
 
-        st.markdown("**Top Drivers**")
-        d1, d2, d3 = st.columns(3)
-        with d1:
-            st.markdown("Top Positive Drivers")
-            pos_df = pd.DataFrame(keyword_diagnostics.get("top_keywords_by_sentiment", {}).get("positive", []))
-            if not pos_df.empty:
-                st.dataframe(pos_df.head(10), use_container_width=True)
-            else:
-                st.info("No strong positive drivers found.")
-        with d2:
-            st.markdown("Mixed / Neutral Drivers")
-            neu_df = pd.DataFrame(keyword_diagnostics.get("top_keywords_by_sentiment", {}).get("neutral", []))
-            if not neu_df.empty:
-                st.dataframe(neu_df.head(10), use_container_width=True)
-            else:
-                st.info("No neutral driver data available.")
-        with d3:
-            st.markdown("Top Negative Drivers")
-            neg_df = pd.DataFrame(keyword_diagnostics.get("top_keywords_by_sentiment", {}).get("negative", []))
-            if not neg_df.empty:
-                st.dataframe(neg_df.head(10), use_container_width=True)
-            else:
-                st.info("No negative driver data available.")
-
         st.markdown("**Actionable Insights**")
         if not issue_df.empty:
             st.markdown("Top Problem Themes (What To Answer / Fix)")
             st.dataframe(
-                issue_df.head(8)[["issue", "mentions", "negative_rate", "what_to_answer", "what_to_fix", "sample_posts"]],
+                _one_based_index(
+                    issue_df.head(8)[
+                        ["issue", "mentions", "negative_rate", "what_to_answer", "what_to_fix", "sample_posts"]
+                    ]
+                ),
                 use_container_width=True,
             )
         if response_playbook:
             st.markdown("Response Playbook")
             playbook_df = pd.DataFrame(response_playbook)
             st.dataframe(
-                playbook_df[
-                    [
-                        "priority",
-                        "issue",
-                        "why_now",
-                        "what_to_answer",
-                        "what_to_fix",
-                        "owner_team",
-                        "recommended_sla",
-                        "watch_channel",
+                _one_based_index(
+                    playbook_df[
+                        [
+                            "priority",
+                            "issue",
+                            "why_now",
+                            "what_to_answer",
+                            "what_to_fix",
+                            "owner_team",
+                            "recommended_sla",
+                            "watch_channel",
+                        ]
                     ]
-                ],
+                ),
                 use_container_width=True,
             )
 
@@ -793,7 +829,7 @@ def main() -> None:
             ]
             if col in filtered_df.columns
         ]
-        st.dataframe(filtered_df[table_columns].style.apply(style_negative_rows, axis=1), use_container_width=True)
+        st.dataframe(_one_based_index(filtered_df[table_columns]).style.apply(style_negative_rows, axis=1), use_container_width=True)
 
     with tabs[1]:
         st.subheader("Customer Response")
@@ -841,8 +877,19 @@ def main() -> None:
                         ]
                     )
                     st.markdown("**Excluded By Reason**")
-                    st.dataframe(ex_df, use_container_width=True)
-                    st.bar_chart(ex_df.set_index("reason")["count"])
+                    st.dataframe(_one_based_index(ex_df), use_container_width=True)
+                    st.vega_lite_chart(
+                        ex_df,
+                        {
+                            "mark": "bar",
+                            "encoding": {
+                                "x": {"field": "reason", "type": "nominal", "sort": "-y"},
+                                "y": {"field": "count", "type": "quantitative"},
+                                "color": {"value": COLOR_INFO},
+                            },
+                        },
+                        use_container_width=True,
+                    )
 
                 if included_by_reason:
                     in_df = pd.DataFrame(
@@ -852,8 +899,19 @@ def main() -> None:
                         ]
                     )
                     st.markdown("**Included By Reason**")
-                    st.dataframe(in_df, use_container_width=True)
-                    st.bar_chart(in_df.set_index("reason")["count"])
+                    st.dataframe(_one_based_index(in_df), use_container_width=True)
+                    st.vega_lite_chart(
+                        in_df,
+                        {
+                            "mark": "bar",
+                            "encoding": {
+                                "x": {"field": "reason", "type": "nominal", "sort": "-y"},
+                                "y": {"field": "count", "type": "quantitative"},
+                                "color": {"value": COLOR_INFO},
+                            },
+                        },
+                        use_container_width=True,
+                    )
 
                 rel_stats = reddit_diagnostics.get("included_relevance_stats", {})
                 rs1, rs2, rs3 = st.columns(3)
@@ -876,16 +934,38 @@ def main() -> None:
                 st.markdown("**Emerging Risk Keywords**")
                 risk_df = pd.DataFrame(keyword_diagnostics.get("negative_lift_keywords", []))
                 if not risk_df.empty:
-                    st.dataframe(risk_df, use_container_width=True)
-                    st.bar_chart(risk_df.set_index("keyword")["negative_lift"])
+                    st.dataframe(_one_based_index(risk_df), use_container_width=True)
+                    st.vega_lite_chart(
+                        risk_df,
+                        {
+                            "mark": "bar",
+                            "encoding": {
+                                "x": {"field": "keyword", "type": "nominal", "sort": "-y"},
+                                "y": {"field": "negative_lift", "type": "quantitative"},
+                                "color": {"value": COLOR_BAD},
+                            },
+                        },
+                        use_container_width=True,
+                    )
                 else:
                     st.info("No emerging risk keywords found.")
 
                 st.markdown("**Top Negative Keywords**")
                 neg_df = pd.DataFrame(keyword_diagnostics.get("top_keywords_by_sentiment", {}).get("negative", []))
                 if not neg_df.empty:
-                    st.dataframe(neg_df, use_container_width=True)
-                    st.bar_chart(neg_df.set_index("keyword")["count"])
+                    st.dataframe(_one_based_index(neg_df), use_container_width=True)
+                    st.vega_lite_chart(
+                        neg_df,
+                        {
+                            "mark": "bar",
+                            "encoding": {
+                                "x": {"field": "keyword", "type": "nominal", "sort": "-y"},
+                                "y": {"field": "count", "type": "quantitative"},
+                                "color": {"value": COLOR_BAD},
+                            },
+                        },
+                        use_container_width=True,
+                    )
                 else:
                     st.info("No negative keyword data available.")
 
@@ -893,16 +973,38 @@ def main() -> None:
                 st.markdown("**Top Positive Keywords**")
                 pos_df = pd.DataFrame(keyword_diagnostics.get("top_keywords_by_sentiment", {}).get("positive", []))
                 if not pos_df.empty:
-                    st.dataframe(pos_df, use_container_width=True)
-                    st.bar_chart(pos_df.set_index("keyword")["count"])
+                    st.dataframe(_one_based_index(pos_df), use_container_width=True)
+                    st.vega_lite_chart(
+                        pos_df,
+                        {
+                            "mark": "bar",
+                            "encoding": {
+                                "x": {"field": "keyword", "type": "nominal", "sort": "-y"},
+                                "y": {"field": "count", "type": "quantitative"},
+                                "color": {"value": COLOR_GOOD},
+                            },
+                        },
+                        use_container_width=True,
+                    )
                 else:
                     st.info("No positive keyword data available.")
 
                 st.markdown("**Subreddit Risk View**")
                 subreddit_risk_df = pd.DataFrame(keyword_diagnostics.get("subreddit_risk", []))
                 if not subreddit_risk_df.empty:
-                    st.dataframe(subreddit_risk_df, use_container_width=True)
-                    st.bar_chart(subreddit_risk_df.set_index("subreddit")["negative_rate"])
+                    st.dataframe(_one_based_index(subreddit_risk_df), use_container_width=True)
+                    st.vega_lite_chart(
+                        subreddit_risk_df,
+                        {
+                            "mark": "bar",
+                            "encoding": {
+                                "x": {"field": "subreddit", "type": "nominal", "sort": "-y"},
+                                "y": {"field": "negative_rate", "type": "quantitative"},
+                                "color": {"value": COLOR_BAD},
+                            },
+                        },
+                        use_container_width=True,
+                    )
                 else:
                     st.info("Not enough subreddit volume for risk comparison.")
 
