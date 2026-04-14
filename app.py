@@ -9,6 +9,7 @@ import streamlit as st
 from dotenv import load_dotenv
 
 from analyzer import analyze_review
+from utils.keyword_diagnostics import build_response_playbook, compute_brand_health_summary, compute_keyword_diagnostics
 from utils.reddit_affiliate_filter import score_affiliate_relevance
 
 load_dotenv()
@@ -19,7 +20,7 @@ DEFAULT_REDDIT_USER_AGENT = "signalagents-brand-monitor/0.1"
 
 REDDIT_SEARCH_ENDPOINT = "https://www.reddit.com/search.json"
 BING_ENDPOINT = "https://api.bing.microsoft.com/v7.0/search"
-DEFAULT_RELEVANCE_THRESHOLD = 2.0
+DEFAULT_RELEVANCE_THRESHOLD = 2.5
 
 
 def _build_company_terms(company_name: str, synonyms_raw: str) -> List[str]:
@@ -403,6 +404,14 @@ def main() -> None:
             "reddit_diagnostics": reddit_diagnostics,
             "relevance_threshold": float(relevance_threshold),
             "max_analyzed_reviews": int(max_analyzed_reviews),
+            "brand_health_summary": compute_brand_health_summary(pd.DataFrame(results)),
+            "keyword_diagnostics": compute_keyword_diagnostics(
+                pd.DataFrame(results),
+                top_n=15,
+                min_keyword_mentions=5,
+                min_negative_mentions=2,
+                risk_lift_threshold=1.6,
+            ),
         }
 
     state = st.session_state.analysis_results
@@ -418,70 +427,185 @@ def main() -> None:
     reddit_diagnostics = state.get("reddit_diagnostics")
 
     df = pd.DataFrame(rows)
+    brand_health_summary = state.get("brand_health_summary") or compute_brand_health_summary(df)
+    keyword_diagnostics = state.get("keyword_diagnostics") or compute_keyword_diagnostics(
+        df,
+        top_n=15,
+        min_keyword_mentions=5,
+        min_negative_mentions=2,
+        risk_lift_threshold=1.6,
+    )
+    response_playbook = build_response_playbook(
+        issue_diagnosis=keyword_diagnostics.get("issue_diagnosis", []),
+        brand_health_summary=brand_health_summary,
+        subreddit_risk=keyword_diagnostics.get("subreddit_risk", []),
+        max_actions=5,
+    )
 
     st.caption(
         f"Collected {raw_count} records, deduped to {deduped_count} records, analyzed top {analyzed_count} records."
     )
+    st.caption("Current source: Reddit (cross-platform-ready dashboard schema)")
 
     if skipped > 0:
         st.warning(f"Skipped {skipped} invalid, out-of-window, or irrelevant record(s) from selected source(s).")
 
+    st.subheader("Brand Health Summary")
+    c1, c2, c3, c4 = st.columns(4)
+    c1.metric("Negative Share", f"{brand_health_summary['negative_share'] * 100:.1f}%")
+    c2.metric("Avg Sentiment", f"{brand_health_summary['avg_sentiment_score']:.2f}")
+    c3.metric("Avg Star", f"{brand_health_summary['avg_star_rating']:.2f}")
+    c4.metric("Net Sentiment", f"{brand_health_summary['net_sentiment']:.2f}")
+
+    st.subheader("Trend Snapshot")
+    t1, t2, t3 = st.columns(3)
+    t1.metric("Recent Neg Share (30d)", f"{brand_health_summary['recent_negative_share'] * 100:.1f}%")
+    t2.metric("Baseline Neg Share", f"{brand_health_summary['baseline_negative_share'] * 100:.1f}%")
+    t3.metric("Neg Share Delta", f"{brand_health_summary['negative_share_delta'] * 100:+.1f} pts")
+
+    st.subheader("Action Flags")
+    high_risk_keywords = keyword_diagnostics.get("negative_lift_keywords", [])[:5]
+    if high_risk_keywords:
+        flag_rows = [f"{row['keyword']} (lift {row['negative_lift']}, mentions {row['mentions']})" for row in high_risk_keywords]
+        st.error("High-risk keywords detected: " + "; ".join(flag_rows))
+    else:
+        st.success("No high-risk keyword spikes detected in current sample.")
+
+    st.subheader("Top Problem Themes (What To Answer / Fix)")
+    issue_df = pd.DataFrame(keyword_diagnostics.get("issue_diagnosis", []))
+    if not issue_df.empty:
+        top_issue_df = issue_df.head(8).copy()
+        st.dataframe(
+            top_issue_df[
+                [
+                    "issue",
+                    "mentions",
+                    "negative_rate",
+                    "what_to_answer",
+                    "what_to_fix",
+                    "sample_posts",
+                ]
+            ],
+            use_container_width=True,
+        )
+    else:
+        st.info("No clear issue themes detected yet. Increase volume or broaden lookback for stronger diagnosis.")
+
+    st.subheader("Response Playbook")
+    if response_playbook:
+        playbook_df = pd.DataFrame(response_playbook)
+        st.dataframe(
+            playbook_df[
+                [
+                    "priority",
+                    "issue",
+                    "why_now",
+                    "what_to_answer",
+                    "what_to_fix",
+                    "owner_team",
+                    "recommended_sla",
+                    "watch_channel",
+                ]
+            ],
+            use_container_width=True,
+        )
+    else:
+        st.info("No playbook actions generated yet. Collect more relevant discussions to enable recommendations.")
+
     negative_count = int((df.get("sentiment", pd.Series(dtype=str)).str.lower() == "negative").sum())
     st.metric("Negative Reviews", negative_count)
-    avg_star = float(df["star_rating"].mean()) if "star_rating" in df.columns and not df.empty else 0.0
-    avg_sentiment_score = (
-        float(df["sentiment_score"].mean()) if "sentiment_score" in df.columns and not df.empty else 0.0
-    )
-    left, right = st.columns(2)
-    left.metric("Average Star Rating", f"{avg_star:.2f}")
-    right.metric("Average Sentiment Score", f"{avg_sentiment_score:.2f}")
 
     if reddit_diagnostics:
-        st.subheader("Filter Diagnosis")
-        d1, d2, d3, d4 = st.columns(4)
-        fetched_total = int(reddit_diagnostics.get("fetched_total", 0))
-        included_total = int(reddit_diagnostics.get("included_total", 0))
-        excluded_total = int(reddit_diagnostics.get("excluded_total", 0))
-        include_rate = (included_total / fetched_total * 100.0) if fetched_total else 0.0
-        d1.metric("Fetched", fetched_total)
-        d2.metric("Included", included_total)
-        d3.metric("Excluded", excluded_total)
-        d4.metric("Include Rate", f"{include_rate:.1f}%")
-        st.caption(
-            f"Threshold: {state.get('relevance_threshold', DEFAULT_RELEVANCE_THRESHOLD)} | "
-            f"Max analyzed: {state.get('max_analyzed_reviews', 30)}"
-        )
-
-        excluded_by_reason = reddit_diagnostics.get("excluded_by_reason", {})
-        included_by_reason = reddit_diagnostics.get("included_by_reason", {})
-
-        if excluded_by_reason:
-            ex_df = pd.DataFrame(
-                [
-                    {"reason": _pretty_reason(reason), "raw_reason": reason, "count": count}
-                    for reason, count in sorted(excluded_by_reason.items(), key=lambda x: x[1], reverse=True)
-                ]
+        with st.expander("Filter Diagnosis", expanded=False):
+            d1, d2, d3, d4 = st.columns(4)
+            fetched_total = int(reddit_diagnostics.get("fetched_total", 0))
+            included_total = int(reddit_diagnostics.get("included_total", 0))
+            excluded_total = int(reddit_diagnostics.get("excluded_total", 0))
+            include_rate = (included_total / fetched_total * 100.0) if fetched_total else 0.0
+            d1.metric("Fetched", fetched_total)
+            d2.metric("Included", included_total)
+            d3.metric("Excluded", excluded_total)
+            d4.metric("Include Rate", f"{include_rate:.1f}%")
+            st.caption(
+                f"Threshold: {state.get('relevance_threshold', DEFAULT_RELEVANCE_THRESHOLD)} | "
+                f"Max analyzed: {state.get('max_analyzed_reviews', 30)}"
             )
-            st.markdown("**Excluded By Reason**")
-            st.dataframe(ex_df, use_container_width=True)
-            st.bar_chart(ex_df.set_index("reason")["count"])
 
-        if included_by_reason:
-            in_df = pd.DataFrame(
-                [
-                    {"reason": _pretty_reason(reason), "raw_reason": reason, "count": count}
-                    for reason, count in sorted(included_by_reason.items(), key=lambda x: x[1], reverse=True)
-                ]
+            excluded_by_reason = reddit_diagnostics.get("excluded_by_reason", {})
+            included_by_reason = reddit_diagnostics.get("included_by_reason", {})
+
+            if excluded_by_reason:
+                ex_df = pd.DataFrame(
+                    [
+                        {"reason": _pretty_reason(reason), "raw_reason": reason, "count": count}
+                        for reason, count in sorted(excluded_by_reason.items(), key=lambda x: x[1], reverse=True)
+                    ]
+                )
+                st.markdown("**Excluded By Reason**")
+                st.dataframe(ex_df, use_container_width=True)
+                st.bar_chart(ex_df.set_index("reason")["count"])
+
+            if included_by_reason:
+                in_df = pd.DataFrame(
+                    [
+                        {"reason": _pretty_reason(reason), "raw_reason": reason, "count": count}
+                        for reason, count in sorted(included_by_reason.items(), key=lambda x: x[1], reverse=True)
+                    ]
+                )
+                st.markdown("**Included By Reason**")
+                st.dataframe(in_df, use_container_width=True)
+                st.bar_chart(in_df.set_index("reason")["count"])
+
+            rel_stats = reddit_diagnostics.get("included_relevance_stats", {})
+            rs1, rs2, rs3 = st.columns(3)
+            rs1.metric("Min Relevance", f"{float(rel_stats.get('min', 0.0)):.2f}")
+            rs2.metric("Avg Relevance", f"{float(rel_stats.get('avg', 0.0)):.2f}")
+            rs3.metric("Max Relevance", f"{float(rel_stats.get('max', 0.0)):.2f}")
+
+    with st.expander("Keyword & Risk Diagnosis (Drilldown)", expanded=False):
+        risk_cfg = keyword_diagnostics.get("risk_thresholds", {})
+        if risk_cfg:
+            st.caption(
+                "Risk keyword thresholds: "
+                f"min mentions {risk_cfg.get('min_keyword_mentions', 0)}, "
+                f"min negative mentions {risk_cfg.get('min_negative_mentions', 0)}, "
+                f"lift >= {risk_cfg.get('risk_lift_threshold', 0)}"
             )
-            st.markdown("**Included By Reason**")
-            st.dataframe(in_df, use_container_width=True)
-            st.bar_chart(in_df.set_index("reason")["count"])
+        col_a, col_b = st.columns(2)
 
-        rel_stats = reddit_diagnostics.get("included_relevance_stats", {})
-        rs1, rs2, rs3 = st.columns(3)
-        rs1.metric("Min Relevance", f"{float(rel_stats.get('min', 0.0)):.2f}")
-        rs2.metric("Avg Relevance", f"{float(rel_stats.get('avg', 0.0)):.2f}")
-        rs3.metric("Max Relevance", f"{float(rel_stats.get('max', 0.0)):.2f}")
+        with col_a:
+            st.markdown("**Emerging Risk Keywords**")
+            risk_df = pd.DataFrame(keyword_diagnostics.get("negative_lift_keywords", []))
+            if not risk_df.empty:
+                st.dataframe(risk_df, use_container_width=True)
+                st.bar_chart(risk_df.set_index("keyword")["negative_lift"])
+            else:
+                st.info("No emerging risk keywords found.")
+
+            st.markdown("**Top Negative Keywords**")
+            neg_df = pd.DataFrame(keyword_diagnostics.get("top_keywords_by_sentiment", {}).get("negative", []))
+            if not neg_df.empty:
+                st.dataframe(neg_df, use_container_width=True)
+                st.bar_chart(neg_df.set_index("keyword")["count"])
+            else:
+                st.info("No negative keyword data available.")
+
+        with col_b:
+            st.markdown("**Top Positive Keywords**")
+            pos_df = pd.DataFrame(keyword_diagnostics.get("top_keywords_by_sentiment", {}).get("positive", []))
+            if not pos_df.empty:
+                st.dataframe(pos_df, use_container_width=True)
+                st.bar_chart(pos_df.set_index("keyword")["count"])
+            else:
+                st.info("No positive keyword data available.")
+
+            st.markdown("**Subreddit Risk View**")
+            subreddit_risk_df = pd.DataFrame(keyword_diagnostics.get("subreddit_risk", []))
+            if not subreddit_risk_df.empty:
+                st.dataframe(subreddit_risk_df, use_container_width=True)
+                st.bar_chart(subreddit_risk_df.set_index("subreddit")["negative_rate"])
+            else:
+                st.info("Not enough subreddit volume for risk comparison.")
 
     sentiment_counts = (
         df.get("sentiment", pd.Series(dtype=str))
