@@ -1,6 +1,6 @@
 # SignalAgents: Brand Image Monitor
 
-A simple app that monitors brand sentiment using real Reddit public search data and optional Bing web-search data, then analyzes review text with the OpenAI API.
+A simple app that monitors brand sentiment using real Reddit public search data and optional Bing web-search data, then analyzes review text for brand image analysis.
 
 ## Features
 - Presets with editable company synonyms
@@ -56,8 +56,3 @@ streamlit run app.py
 - Company name and comma-separated synonyms
 - Reddit subreddit, posts-per-term, lookback years, pages-per-term
 - Bing web results-per-term (shown only in web-enabled modes)
-
-## Security Notes
-- Do not hardcode API keys in code.
-- Use environment variables only.
-- This project uses real API-returned data and does not fabricate review content.
