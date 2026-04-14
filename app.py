@@ -68,6 +68,12 @@ def _dedupe_reviews(records: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
     return deduped
 
 
+def _pretty_reason(reason: str) -> str:
+    cleaned = reason.replace("excluded:", "").replace("matched:", "")
+    cleaned = cleaned.replace("score=", "").replace("_", " ")
+    return cleaned.strip().title()
+
+
 def fetch_reddit_reviews(
     company_name: str,
     synonyms_raw: str,
@@ -76,10 +82,10 @@ def fetch_reddit_reviews(
     years_back: int,
     relevance_threshold: float,
     max_pages: int = 5,
-) -> Tuple[List[Dict[str, Any]], int, Optional[str]]:
+) -> Tuple[List[Dict[str, Any]], int, Optional[str], Dict[str, Any]]:
     terms = _build_company_terms(company_name, synonyms_raw)
     if not terms:
-        return [], 0, "Provide a company name or at least one synonym"
+        return [], 0, "Provide a company name or at least one synonym", {}
 
     headers = {
         "User-Agent": os.getenv("REDDIT_USER_AGENT", DEFAULT_REDDIT_USER_AGENT),
@@ -91,6 +97,10 @@ def fetch_reddit_reviews(
     records: List[Dict[str, Any]] = []
     skipped = 0
     seen_submission_ids = set()
+    fetched_total = 0
+    excluded_by_reason: Dict[str, int] = {}
+    included_by_reason: Dict[str, int] = {}
+    included_scores: List[float] = []
 
     try:
         for term in terms:
@@ -120,7 +130,7 @@ def fetch_reddit_reviews(
 
                 response = requests.get(endpoint, headers=headers, params=params, timeout=20)
                 if response.status_code != 200:
-                    return [], skipped, f"Reddit public API error: {response.status_code} {response.text}"
+                    return [], skipped, f"Reddit public API error: {response.status_code} {response.text}", {}
 
                 payload = response.json()
                 listing_data = payload.get("data", {})
@@ -131,6 +141,7 @@ def fetch_reddit_reviews(
                 oldest_in_page_in_window = False
 
                 for child in children:
+                    fetched_total += 1
                     submission = child.get("data", {})
                     submission_id = str(submission.get("id") or "").strip()
                     if not submission_id or submission_id in seen_submission_ids:
@@ -139,10 +150,14 @@ def fetch_reddit_reviews(
                     created_utc = submission.get("created_utc")
                     if created_utc is None:
                         skipped += 1
+                        reason = "excluded:missing_created_utc"
+                        excluded_by_reason[reason] = excluded_by_reason.get(reason, 0) + 1
                         continue
 
                     created_dt = datetime.fromtimestamp(float(created_utc), tz=timezone.utc)
                     if created_dt < cutoff:
+                        reason = "excluded:out_of_window"
+                        excluded_by_reason[reason] = excluded_by_reason.get(reason, 0) + 1
                         continue
 
                     oldest_in_page_in_window = True
@@ -154,15 +169,21 @@ def fetch_reddit_reviews(
                     relevance_score, reason = score_affiliate_relevance(title=title, body=body)
                     if relevance_score < relevance_threshold:
                         skipped += 1
+                        reason_key = reason if reason.startswith("excluded:") else "excluded:below_threshold"
+                        excluded_by_reason[reason_key] = excluded_by_reason.get(reason_key, 0) + 1
                         continue
 
                     text = f"{title}\n\n{body}".strip()
                     if not text:
                         skipped += 1
+                        reason = "excluded:empty_text"
+                        excluded_by_reason[reason] = excluded_by_reason.get(reason, 0) + 1
                         continue
 
                     permalink = str(submission.get("permalink") or "").strip()
                     source_ref = f"https://reddit.com{permalink}" if permalink else ""
+                    included_by_reason[reason] = included_by_reason.get(reason, 0) + 1
+                    included_scores.append(float(relevance_score))
 
                     records.append(
                         {
@@ -192,9 +213,21 @@ def fetch_reddit_reviews(
                     break
 
     except Exception as exc:  # noqa: BLE001
-        return [], skipped, f"Reddit public request failed: {exc}"
+        return [], skipped, f"Reddit public request failed: {exc}", {}
 
-    return records, skipped, None
+    diagnostics = {
+        "fetched_total": fetched_total,
+        "included_total": len(records),
+        "excluded_total": max(0, fetched_total - len(records)),
+        "excluded_by_reason": excluded_by_reason,
+        "included_by_reason": included_by_reason,
+        "included_relevance_stats": {
+            "min": min(included_scores) if included_scores else 0.0,
+            "avg": (sum(included_scores) / len(included_scores)) if included_scores else 0.0,
+            "max": max(included_scores) if included_scores else 0.0,
+        },
+    }
+    return records, skipped, None, diagnostics
 
 
 def fetch_web_reviews(company_name: str, synonyms_raw: str, count_per_term: int) -> Tuple[List[Dict[str, Any]], int, Optional[str]]:
@@ -321,7 +354,7 @@ def main() -> None:
         skipped = 0
 
         if data_source in {"Reddit", "Reddit + Web"}:
-            reddit_reviews, reddit_skipped, reddit_error = fetch_reddit_reviews(
+            reddit_reviews, reddit_skipped, reddit_error, reddit_diagnostics = fetch_reddit_reviews(
                 company_name=company_name,
                 synonyms_raw=company_synonyms,
                 subreddit_name=subreddit_name,
@@ -335,6 +368,8 @@ def main() -> None:
                 st.error(f"Failed to load Reddit data: {reddit_error}")
                 st.stop()
             combined_reviews.extend(reddit_reviews)
+        else:
+            reddit_diagnostics = None
 
         if data_source in {"Web", "Reddit + Web"}:
             web_reviews, web_skipped, web_error = fetch_web_reviews(
@@ -365,6 +400,9 @@ def main() -> None:
             "raw_count": len(combined_reviews),
             "deduped_count": len(deduped_reviews),
             "analyzed_count": len(selected_reviews),
+            "reddit_diagnostics": reddit_diagnostics,
+            "relevance_threshold": float(relevance_threshold),
+            "max_analyzed_reviews": int(max_analyzed_reviews),
         }
 
     state = st.session_state.analysis_results
@@ -377,6 +415,7 @@ def main() -> None:
     raw_count = state.get("raw_count", len(rows))
     deduped_count = state.get("deduped_count", len(rows))
     analyzed_count = state.get("analyzed_count", len(rows))
+    reddit_diagnostics = state.get("reddit_diagnostics")
 
     df = pd.DataFrame(rows)
 
@@ -396,6 +435,53 @@ def main() -> None:
     left, right = st.columns(2)
     left.metric("Average Star Rating", f"{avg_star:.2f}")
     right.metric("Average Sentiment Score", f"{avg_sentiment_score:.2f}")
+
+    if reddit_diagnostics:
+        st.subheader("Filter Diagnosis")
+        d1, d2, d3, d4 = st.columns(4)
+        fetched_total = int(reddit_diagnostics.get("fetched_total", 0))
+        included_total = int(reddit_diagnostics.get("included_total", 0))
+        excluded_total = int(reddit_diagnostics.get("excluded_total", 0))
+        include_rate = (included_total / fetched_total * 100.0) if fetched_total else 0.0
+        d1.metric("Fetched", fetched_total)
+        d2.metric("Included", included_total)
+        d3.metric("Excluded", excluded_total)
+        d4.metric("Include Rate", f"{include_rate:.1f}%")
+        st.caption(
+            f"Threshold: {state.get('relevance_threshold', DEFAULT_RELEVANCE_THRESHOLD)} | "
+            f"Max analyzed: {state.get('max_analyzed_reviews', 30)}"
+        )
+
+        excluded_by_reason = reddit_diagnostics.get("excluded_by_reason", {})
+        included_by_reason = reddit_diagnostics.get("included_by_reason", {})
+
+        if excluded_by_reason:
+            ex_df = pd.DataFrame(
+                [
+                    {"reason": _pretty_reason(reason), "raw_reason": reason, "count": count}
+                    for reason, count in sorted(excluded_by_reason.items(), key=lambda x: x[1], reverse=True)
+                ]
+            )
+            st.markdown("**Excluded By Reason**")
+            st.dataframe(ex_df, use_container_width=True)
+            st.bar_chart(ex_df.set_index("reason")["count"])
+
+        if included_by_reason:
+            in_df = pd.DataFrame(
+                [
+                    {"reason": _pretty_reason(reason), "raw_reason": reason, "count": count}
+                    for reason, count in sorted(included_by_reason.items(), key=lambda x: x[1], reverse=True)
+                ]
+            )
+            st.markdown("**Included By Reason**")
+            st.dataframe(in_df, use_container_width=True)
+            st.bar_chart(in_df.set_index("reason")["count"])
+
+        rel_stats = reddit_diagnostics.get("included_relevance_stats", {})
+        rs1, rs2, rs3 = st.columns(3)
+        rs1.metric("Min Relevance", f"{float(rel_stats.get('min', 0.0)):.2f}")
+        rs2.metric("Avg Relevance", f"{float(rel_stats.get('avg', 0.0)):.2f}")
+        rs3.metric("Max Relevance", f"{float(rel_stats.get('max', 0.0)):.2f}")
 
     sentiment_counts = (
         df.get("sentiment", pd.Series(dtype=str))
