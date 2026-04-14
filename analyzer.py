@@ -20,15 +20,19 @@ ALLOWED_SEVERITIES = {"low", "medium", "high"}
 
 PROMPT_TEMPLATE = """You are a review analysis assistant.
 Analyze the review text and return ONLY valid JSON with this exact schema:
-{
+{{
   "sentiment": "positive | neutral | negative",
+  "sentiment_score": float,
+  "star_rating": int,
   "confidence": float,
   "category": "Product Issue | Order Issue | UX Issue | Customer Support | Pricing | General Feedback",
   "severity": "low | medium | high",
   "reason": "short explanation"
-}
+}}
 Rules:
 - Output must be JSON only. No markdown. No extra keys.
+- sentiment_score must be between -1.0 and 1.0.
+- star_rating must be between 1 and 5.
 - confidence must be between 0.0 and 1.0.
 - Use one category only.
 - Keep reason concise (1-2 sentences).
@@ -43,6 +47,8 @@ Review text:
 def _error_result(message: str) -> Dict[str, Any]:
     return {
         "sentiment": "neutral",
+        "sentiment_score": 0.0,
+        "star_rating": 3,
         "confidence": 0.0,
         "category": "General Feedback",
         "severity": "low",
@@ -59,8 +65,15 @@ def _validate_output(payload: Dict[str, Any]) -> Dict[str, Any]:
 
     try:
         confidence = float(payload.get("confidence", 0.0))
+        sentiment_score = float(payload.get("sentiment_score"))
+        star_rating = int(round(float(payload.get("star_rating"))))
     except (TypeError, ValueError):
-        raise ValueError("confidence must be a float")
+        raise ValueError("confidence/sentiment_score/star_rating must be numeric")
+
+    # Guardrails: clamp out-of-range values rather than hard-failing.
+    sentiment_score = max(-1.0, min(1.0, sentiment_score))
+    star_rating = max(1, min(5, star_rating))
+    confidence = max(0.0, min(1.0, confidence))
 
     if sentiment not in ALLOWED_SENTIMENTS:
         raise ValueError("invalid sentiment")
@@ -68,18 +81,22 @@ def _validate_output(payload: Dict[str, Any]) -> Dict[str, Any]:
         raise ValueError("invalid category")
     if severity not in ALLOWED_SEVERITIES:
         raise ValueError("invalid severity")
-    if not 0.0 <= confidence <= 1.0:
-        raise ValueError("confidence out of range")
     if not reason:
         raise ValueError("reason is required")
 
     return {
         "sentiment": sentiment,
+        "sentiment_score": sentiment_score,
+        "star_rating": star_rating,
         "confidence": confidence,
         "category": category,
         "severity": severity,
         "reason": reason,
     }
+
+
+def _build_prompt(review_text: str) -> str:
+    return PROMPT_TEMPLATE.format(review_text=review_text)
 
 
 def analyze_review(text: str) -> Dict[str, Any]:
@@ -95,13 +112,18 @@ def analyze_review(text: str) -> Dict[str, Any]:
     client = OpenAI(api_key=api_key)
 
     try:
+        prompt = _build_prompt(text.strip())
+    except Exception as exc:  # noqa: BLE001
+        return _error_result(f"Prompt build failed: {exc}")
+
+    try:
         response = client.responses.create(
             model=model,
-            input=PROMPT_TEMPLATE.format(review_text=text.strip()),
+            input=prompt,
             temperature=0,
         )
     except Exception as exc:  # noqa: BLE001
-        return _error_result(f"OpenAI request failed: {exc}")
+        return _error_result(f"AI model request failed: {exc}")
 
     try:
         raw_text = response.output_text

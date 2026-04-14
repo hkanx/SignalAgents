@@ -1,0 +1,6 @@
+[client]
+toolbarMode = "viewer"
+
+[server]
+runOnSave = false
+fileWatcherType = "none"
