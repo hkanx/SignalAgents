@@ -1,5 +1,6 @@
 import hashlib
 import os
+import time
 from datetime import datetime, timedelta, timezone
 from typing import Any, Dict, List, Optional, Tuple
 
@@ -194,6 +195,9 @@ def fetch_reddit_reviews(
     excluded_by_reason: Dict[str, int] = {}
     included_by_reason: Dict[str, int] = {}
     included_scores: List[float] = []
+    request_retries = 0
+    request_failures = 0
+    request_failure_messages: List[str] = []
 
     try:
         for term in terms:
@@ -221,11 +225,40 @@ def fetch_reddit_reviews(
                 if after_token:
                     params["after"] = after_token
 
-                response = requests.get(endpoint, headers=headers, params=params, timeout=20)
-                if response.status_code != 200:
-                    return [], skipped, f"Reddit public API error: {response.status_code} {response.text}", {}
+                payload: Optional[Dict[str, Any]] = None
+                last_error = ""
+                max_attempts = 4
+                for attempt in range(1, max_attempts + 1):
+                    try:
+                        response = requests.get(endpoint, headers=headers, params=params, timeout=20)
+                        if response.status_code == 200:
+                            payload = response.json()
+                            break
 
-                payload = response.json()
+                        if response.status_code in {429, 500, 502, 503, 504}:
+                            last_error = f"HTTP {response.status_code}"
+                        else:
+                            last_error = f"HTTP {response.status_code}: {response.text[:160]}"
+                            break
+                    except requests.exceptions.Timeout:
+                        last_error = "timeout"
+                    except requests.exceptions.RequestException as exc:
+                        last_error = f"request_error: {exc}"
+
+                    if attempt < max_attempts:
+                        request_retries += 1
+                        time.sleep(1.2 * attempt)
+
+                if payload is None:
+                    request_failures += 1
+                    failure_reason = "excluded:reddit_request_failed"
+                    excluded_by_reason[failure_reason] = excluded_by_reason.get(failure_reason, 0) + 1
+                    request_failure_messages.append(
+                        f"term={term}, after={after_token or 'start'}, error={last_error}"
+                    )
+                    # Move to next term if this page repeatedly failed.
+                    break
+
                 listing_data = payload.get("data", {})
                 children = listing_data.get("children", [])
                 if not children:
@@ -308,6 +341,18 @@ def fetch_reddit_reviews(
     except Exception as exc:  # noqa: BLE001
         return [], skipped, f"Reddit public request failed: {exc}", {}
 
+    if not records and request_failures > 0:
+        return (
+            [],
+            skipped,
+            "Reddit requests timed out repeatedly. Try fewer pages/terms, or run again in a minute.",
+            {
+                "request_failures": request_failures,
+                "request_retries": request_retries,
+                "request_failure_messages": request_failure_messages[:8],
+            },
+        )
+
     diagnostics = {
         "fetched_total": fetched_total,
         "included_total": len(records),
@@ -319,6 +364,9 @@ def fetch_reddit_reviews(
             "avg": (sum(included_scores) / len(included_scores)) if included_scores else 0.0,
             "max": max(included_scores) if included_scores else 0.0,
         },
+        "request_failures": request_failures,
+        "request_retries": request_retries,
+        "request_failure_messages": request_failure_messages[:8],
     }
     return records, skipped, None, diagnostics
 
@@ -541,6 +589,11 @@ def main() -> None:
 
     if skipped > 0:
         st.warning(f"Skipped {skipped} invalid, out-of-window, or irrelevant record(s) from selected source(s).")
+    if reddit_diagnostics and int(reddit_diagnostics.get("request_failures", 0)) > 0:
+        st.warning(
+            f"Reddit had {int(reddit_diagnostics.get('request_failures', 0))} request failure(s); "
+            f"retried {int(reddit_diagnostics.get('request_retries', 0))} time(s). Results shown are partial."
+        )
 
     metric_df = df.copy()
     metric_df["sentiment_norm"] = metric_df.get("sentiment", pd.Series(dtype=str)).astype(str).str.lower()
@@ -918,6 +971,20 @@ def main() -> None:
                 rs1.metric("Min Relevance", f"{float(rel_stats.get('min', 0.0)):.2f}")
                 rs2.metric("Avg Relevance", f"{float(rel_stats.get('avg', 0.0)):.2f}")
                 rs3.metric("Max Relevance", f"{float(rel_stats.get('max', 0.0)):.2f}")
+                if int(reddit_diagnostics.get("request_failures", 0)) > 0:
+                    st.caption(
+                        f"Request failures: {int(reddit_diagnostics.get('request_failures', 0))} | "
+                        f"Retries: {int(reddit_diagnostics.get('request_retries', 0))}"
+                    )
+                    failure_details = reddit_diagnostics.get("request_failure_messages", [])
+                    if failure_details:
+                        st.markdown("**Recent Request Failures**")
+                        st.dataframe(
+                            _one_based_index(
+                                pd.DataFrame([{"detail": msg} for msg in failure_details])
+                            ),
+                            use_container_width=True,
+                        )
 
         with st.expander("Keyword And Risk Diagnostics", expanded=False):
             risk_cfg = keyword_diagnostics.get("risk_thresholds", {})

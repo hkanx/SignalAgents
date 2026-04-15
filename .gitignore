@@ -2,4 +2,5 @@ __pycache__/
 *.py[cod]
 .env
 .venv/
-utils/reddit_affiliate_filter.py
+# utils/reddit_affiliate_filter.py
+# utils/keyword_diagnostics.py
