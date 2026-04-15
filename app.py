@@ -454,8 +454,8 @@ def style_negative_rows(row: pd.Series) -> List[str]:
 
 
 def main() -> None:
-    st.set_page_config(page_title="SignalAgents: Brand Image Monitor", layout="wide")
-    st.title("SignalAgents: Brand Image Monitor")
+    st.set_page_config(page_title="Brand Image Monitor", page_icon="sample_logo.png", layout="wide")
+    st.title("Brand Image Monitor")
 
     st.caption("Brand image and sentiment monitoring platform from real user content and web-search data. Surfaces early negative trends, generate insights, and accelerates brand responses.")
 
