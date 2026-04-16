@@ -1,4 +1,5 @@
 import hashlib
+import logging
 import os
 import time
 from datetime import datetime, timedelta, timezone
@@ -11,9 +12,13 @@ from dotenv import load_dotenv
 
 from analyzer import analyze_review
 from utils.keyword_diagnostics import build_response_playbook, compute_brand_health_summary, compute_keyword_diagnostics
+# from utils.opensearch_kb import build_opensearch_client, search_kb
 from utils.reddit_affiliate_filter import score_affiliate_relevance
+from utils.response_generator import generate_kb_response
 
 load_dotenv()
+
+logger = logging.getLogger(__name__)
 
 DEFAULT_COMPANY_NAME = "Giftcards.com"
 DEFAULT_COMPANY_SYNONYMS = "giftcards.com, bhn, blackhawk network, giftcardmall, CashStar, tango card"
@@ -156,17 +161,87 @@ def _render_priority_case_queue(df: pd.DataFrame, key_prefix: str, show_draft_wo
         format_func=lambda idx: str(queue_view_df.loc[idx, "case_label"]),
         key=f"{key_prefix}_case_select",
     )
-    base_reply = str(queue_view_df.loc[case_idx, "response_template"])
+    # base_reply = str(queue_view_df.loc[case_idx, "response_template"])
+
+    row = queue_view_df.loc[case_idx]
+    post_title = str(row.get("title") or "")
+    post_text = str(row.get("text") or "")
+    category = str(row.get("category") or "General Feedback")
+    severity = str(row.get("severity") or "medium")
+    reason = str(row.get("reason") or "the issue you reported")
+
+    # ── Case detail panel ──────────────────────────────────────────────────
+    st.markdown("---")
+    d1, d2, d3 = st.columns(3)
+    d1.metric("Posted", str(row.get("posted_at") or row.get("date") or "—"))
+    d2.metric("Subreddit", f"r/{row.get('subreddit', '—')}")
+    d3.metric("Sentiment Score", str(row.get("sentiment_score") or "—"))
+    if reason:
+        st.caption(f"**Analysis:** {reason}")
+    with st.expander(f"📄 Post: {post_title or '(no title)'}", expanded=True):
+        st.write(post_text or "*(no post body)*")
+    st.markdown("---")
+
+    # # Build a KB search cache key so we only re-query when the case changes.
+    cache_key = f"{key_prefix}_kb_{hashlib.md5((post_title + reason).encode()).hexdigest()}"
+    # if cache_key not in st.session_state:
+    #     os_client = _get_opensearch_client()
+    #     kb_index = os.getenv("OPENSEARCH_INDEX", "INSERT INDEX NAME HERE")
+    #     kb_hits: list[dict] = []
+    #     if os_client is not None:
+    #         with st.spinner("Searching knowledge base…"):
+    #             query = f"{post_title} {reason}".strip()
+    #             kb_hits = search_kb(os_client, query, kb_index, top_k=3)
+    #     st.session_state[cache_key] = kb_hits
+
+    # kb_hits = st.session_state[cache_key]
+
+    # Generate (or retrieve cached) response draft.
+    draft_key = f"{key_prefix}_draft_{cache_key}"
+    if draft_key not in st.session_state:
+        # include kb_hits in the func call after reason later
+        with st.spinner("Generating response draft…"):
+            st.session_state[draft_key] = generate_kb_response(
+                post_title, post_text, category, severity, reason
+            )
+
+    base_reply = st.session_state[draft_key]
+
     optional_detail = st.text_input(
         "Optional company-specific detail to append",
         value="",
         placeholder="Example: Please DM your order reference so we can investigate.",
-        key=f"{key_prefix}_detail_text",
+        # key=f"{key_prefix}_detail_text",
+        key=f"{key_prefix}_detail_text{cache_key}",
     ).strip()
     final_reply = base_reply if not optional_detail else f"{base_reply} {optional_detail}"
-    st.text_area("Reply draft", value=final_reply, height=140, key=f"{key_prefix}_reply_draft")
-    st.code(final_reply)
 
+    # st.text_area("Reply draft", value=final_reply, height=140, key=f"{key_prefix}_reply_draft")
+    # st.code(final_reply)
+
+    # Use a case-specific key so the textarea resets whenever the selected case changes.
+    reply_key = f"{key_prefix}_reply_draft_{cache_key}"
+    st.text_area("Reply draft", value=final_reply, height=160, key=reply_key)
+    # Read back from session_state so st.code reflects any manual edits the user made.
+    st.code(st.session_state.get(reply_key, final_reply))
+
+#    if kb_hits:
+#        st.markdown("---")
+#        st.markdown("**📖 Related Knowledge Base Articles (out of XX articles)**")
+#        has_direct = any(h.get("is_direct") for h in kb_hits)
+#        if not has_direct:
+#            st.caption(
+#                "ℹ️ No exact match found for this complaint. "
+#                "Showing related articles that may still be useful as general reference."
+#            )
+#        for i, hit in enumerate(kb_hits):
+#            label = hit["title"]
+#            if not hit.get("is_direct"):
+#                label = f"{label}  *(related reference)*"
+#            with st.expander(label, expanded=(i == 0)):
+#                st.markdown(hit["snippet"])
+#    else:
+#        st.caption("ℹ️ No KB articles found — draft generated from issue context only.")
 
 def fetch_reddit_reviews(
     company_name: str,
@@ -454,8 +529,8 @@ def style_negative_rows(row: pd.Series) -> List[str]:
 
 
 def main() -> None:
-    st.set_page_config(page_title="Brand Image Monitor", page_icon="sample_logo.png", layout="wide")
-    st.title("Brand Image Monitor")
+    st.set_page_config(page_title="SignalAgents: Brand Image Monitor", layout="wide")
+    st.title("SignalAgents: Brand Image Monitor")
 
     st.caption("Brand image and sentiment monitoring platform from real user content and web-search data. Surfaces early negative trends, generate insights, and accelerates brand responses.")
 
