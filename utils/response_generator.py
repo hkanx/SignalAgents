@@ -101,7 +101,6 @@ def _build_kb_section(kb_hits: list[dict[str, str]]) -> str:
    return _KB_SECTION_TEMPLATE.format(articles=articles) if articles else _NO_KB_SECTION
 
 
-# def _fallback_template(category: str, severity: str, reason: str) -> str:
 def _fallback_template(category: str, severity: str, reason: str, sentiment: str = "negative") -> str:
    if sentiment == "positive":
        return (

@@ -14,7 +14,6 @@ from dotenv import load_dotenv
 
 from analyzer import analyze_review
 from utils.keyword_diagnostics import build_response_playbook, compute_brand_health_summary, compute_keyword_diagnostics
-# from utils.opensearch_kb import build_opensearch_client, search_kb
 from utils.reddit_affiliate_filter import score_affiliate_relevance
 from utils.response_generator import generate_kb_response
 from utils.synthetic_kb import lookup_synthetic_kb_hits
@@ -51,8 +50,6 @@ SENTIMENT_SCORE_THRESHOLD = 0.6
 COLOR_COMPANY_A = "#1f77b4"   # blue
 COLOR_COMPANY_B = "#ff7f0e"   # orange
 
-
-#EXCLUDED_BRANDS = {"rakuten"}
 EXCLUDED_BRANDS = {"n/a"}
 
 def _extract_comparison_kpis(bhs: Dict[str, float], rows_df: pd.DataFrame) -> Dict[str, Any]:
@@ -127,7 +124,6 @@ def _pretty_reason(reason: str) -> str:
 def _build_response_template(row: pd.Series) -> str:
     category = str(row.get("category", "General Feedback")).strip() or "General Feedback"
     issue_reason = str(row.get("reason", "")).strip()
-    # issue_reason = issue_reason if issue_reason else "the issue you reported"
     severity = str(row.get("severity", "medium")).strip().lower() or "medium"
     sentiment = str(row.get("sentiment", "negative")).strip().lower()
 
@@ -139,9 +135,6 @@ def _build_response_template(row: pd.Series) -> str:
         )
 
     issue_reason = issue_reason if issue_reason else "the issue you reported"
-
-
-
     urgency = "high-priority" if severity == "high" else ("time-sensitive" if severity == "medium" else "important")
     return (
         f"Thanks for flagging this. We are sorry about {issue_reason}. "
@@ -154,9 +147,6 @@ def _one_based_index(df: pd.DataFrame) -> pd.DataFrame:
     out.index = range(1, len(out) + 1)
     return out
 
-
-# def _render_priority_case_queue(df: pd.DataFrame, key_prefix: str, show_draft_workspace: bool) -> None:
-#     st.markdown("**Priority Case Queue (Highest-Risk Posts)**")
 def _render_priority_case_queue(df: pd.DataFrame, key_prefix: str, show_draft_workspace: bool, sentiment_filter: str = "negative") -> None:
     if sentiment_filter == "negative":
         st.markdown("**Priority Case Queue (Highest-Risk Posts)**")
@@ -169,11 +159,6 @@ def _render_priority_case_queue(df: pd.DataFrame, key_prefix: str, show_draft_wo
     ).fillna(3)
     queue_df["sentiment_score_num"] = pd.to_numeric(queue_df.get("sentiment_score"), errors="coerce").fillna(0.0)
     queue_df["date_dt"] = pd.to_datetime(queue_df.get("date"), errors="coerce")
-    # queue_df = queue_df.sort_values(
-    #     by=["severity_rank", "sentiment_score_num", "date_dt"],
-    #     ascending=[True, True, False],
-    # )
-    # queue_df = queue_df[queue_df.get("sentiment", pd.Series(dtype=str)).astype(str).str.lower() == "negative"].head(15)
     if sentiment_filter == "negative":
        queue_df = queue_df.sort_values(
            by=["sentiment_score_num", "date_dt"],
@@ -190,7 +175,6 @@ def _render_priority_case_queue(df: pd.DataFrame, key_prefix: str, show_draft_wo
     queue_df["response_template"] = queue_df.apply(_build_response_template, axis=1)
 
     if queue_df.empty:
-        # st.info("No negative cases available for queueing.")
         st.info(f"No {sentiment_filter} cases available for queueing.")
         return
 
@@ -231,7 +215,6 @@ def _render_priority_case_queue(df: pd.DataFrame, key_prefix: str, show_draft_wo
         format_func=lambda idx: str(queue_view_df.loc[idx, "case_label"]),
         key=f"{key_prefix}_case_select",
     )
-    # base_reply = str(queue_view_df.loc[case_idx, "response_template"])
 
     row = queue_view_df.loc[case_idx]
     post_title = str(row.get("title") or "")
@@ -253,7 +236,7 @@ def _render_priority_case_queue(df: pd.DataFrame, key_prefix: str, show_draft_wo
         st.write(post_text or "*(no post body)*")
     st.markdown("---")
 
-    # # Build a KB search cache key so we only re-query when the case changes.
+    # Build a KB search cache key so we only re-query when the case changes.
     cache_key = f"{key_prefix}_kb_{hashlib.md5((post_title + reason).encode()).hexdigest()}"
     if cache_key not in st.session_state:
         st.session_state[cache_key] = lookup_synthetic_kb_hits(
@@ -269,7 +252,6 @@ def _render_priority_case_queue(df: pd.DataFrame, key_prefix: str, show_draft_wo
     # Generate (or retrieve cached) response draft.
     draft_key = f"{key_prefix}_draft_{cache_key}"
     if draft_key not in st.session_state:
-        # include kb_hits in the func call after reason later
         with st.spinner("Generating response draft…"):
             st.session_state[draft_key] = generate_kb_response(
                 post_title, post_text, category, severity, reason, kb_hits, sentiment=row_sentiment
@@ -281,13 +263,9 @@ def _render_priority_case_queue(df: pd.DataFrame, key_prefix: str, show_draft_wo
         "Optional company-specific detail to append",
         value="",
         placeholder="Example: Please DM your order reference so we can investigate.",
-        # key=f"{key_prefix}_detail_text",
         key=f"{key_prefix}_detail_text{cache_key}",
     ).strip()
     final_reply = base_reply if not optional_detail else f"{base_reply} {optional_detail}"
-
-    # st.text_area("Reply draft", value=final_reply, height=140, key=f"{key_prefix}_reply_draft")
-    # st.code(final_reply)
 
     # Use a case-specific key so the textarea resets whenever the selected case changes.
     reply_key = f"{key_prefix}_reply_draft_{cache_key}"
@@ -581,8 +559,6 @@ def fetch_web_reviews(company_name: str, synonyms_raw: str, count_per_term: int)
 
 
 def analyze_reviews(reviews: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
-    # analyzed: List[Dict[str, Any]] = []
-    # for review in reviews:
     from concurrent.futures import ThreadPoolExecutor, as_completed
 
     def _analyze_one(review: Dict[str, Any]) -> Dict[str, Any]:
@@ -691,8 +667,6 @@ def main() -> None:
             )
             skipped += reddit_skipped
             if reddit_error:
-                # st.error(f"Failed to load Reddit data: {reddit_error}")
-                # st.stop()
                 cached_path = Path(__file__).parent / "data" / "scheduled_results.json"
                 if cached_path.exists():
                     st.warning(f"Live Reddit fetch failed ({reddit_error}). Using cached data.")
@@ -1491,30 +1465,6 @@ def main() -> None:
                    st.dataframe(_one_based_index(b_issues.head(5)[show_cols]), use_container_width=True)
                else:
                    st.info("No issue data.")
-
-
-           # # ── Side-by-Side Risk Keywords ────────────────────────────
-           # st.markdown("**Risk Keywords**")
-           # rk_left, rk_right = st.columns(2)
-
-
-           # with rk_left:
-           #     st.markdown(f"**{company_a_name}**")
-           #     a_risk = pd.DataFrame(keyword_diagnostics.get("negative_lift_keywords", []))
-           #     if not a_risk.empty:
-           #         st.dataframe(_one_based_index(a_risk.head(8)), use_container_width=True)
-           #     else:
-           #         st.info("No risk keywords.")
-
-
-           # with rk_right:
-           #     st.markdown(f"**{company_b_name}**")
-           #     b_risk = pd.DataFrame(comp_kd.get("negative_lift_keywords", []))
-           #     if not b_risk.empty:
-           #         st.dataframe(_one_based_index(b_risk.head(8)), use_container_width=True)
-           #     else:
-           #         st.info("No risk keywords.")
-
 
        else:
            st.info(
