@@ -1,17 +1,19 @@
-#!/usr/bin/env python3
-# Note: This file may not be actively used in the current version of the project, but is retained for reference.
 """
-Complaint Triage Agent — standalone script.
+Complaint Triage Agent — standalone CLI script.
+
 
 Reads a Reddit complaint post, analyzes it, and either:
  A) Drafts a customer response (using KB articles), or
- B) Creates a Jira ticket for developers.
+ B) Creates a Jira ticket for giftcards.com developers.
+
 
 Always confirms with the user before submitting anything.
+
 
 Usage:
    python triage_agent.py
 """
+
 
 import json
 import logging
@@ -20,32 +22,40 @@ import re
 import sys
 from typing import Any, Dict, Optional
 
+
 import requests
 from dotenv import load_dotenv
 from openai import OpenAI
 
+
 # Reuse existing project utilities
 from analyzer import analyze_review
-from utils.jira_client import build_form_data, fill_intake_form
+from utils.jira_client import build_form_data, submit_mock_intake_form
+
 
 load_dotenv()
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 logger = logging.getLogger(__name__)
 
+
 REDDIT_URL_PATTERN = re.compile(
    r"https?://(www\.)?reddit\.com/r/\w+/comments/\w+"
 )
 
+
 # ── Triage LLM prompt ────────────────────────────────────────────────
 
+
 TRIAGE_SYSTEM_PROMPT = (
-   "You are a complaint triage specialist for a company. "
+   "You are a complaint triage specialist for giftcards.com (operated by Blackhawk Network). "
    "Your job is to decide whether a customer complaint should receive a direct customer response "
    "or should be escalated as a bug/issue ticket for the development team."
 )
 
+
 TRIAGE_USER_PROMPT = """\
 A customer posted the following complaint:
+
 
 Title: {post_title}
 Message: {post_text}
@@ -91,7 +101,61 @@ ALLOWED_COMPONENTS = {
    "redemption", "support", "website", "other",
 }
 
-# ── Reddit fetch ──────────────────────────────────────────────────────
+
+# ── Criticality scoring ──────────────────────────────────────────────
+# Mirrors the P1/P2/P3 severity_score pattern from keyword_diagnostics.py
+# (severity_score >= 8 → P1, >= 4 → P2). Scale: 0-10.
+
+
+CRITICALITY_THRESHOLD = 7.0  # only auto-fill Jira intake form above this
+
+
+_DEFAULT_CATEGORY = "General Feedback"
+_SEVERITY_WEIGHT = {"high": 3.0, "medium": 2.0, "low": 1.0}
+_CATEGORY_WEIGHT = {
+   "Product Issue": 1.5,
+   "UX Issue": 1.5,
+   "Order Issue": 1.2,
+   "Customer Support": 0.8,
+   "Pricing": 0.7,
+   _DEFAULT_CATEGORY: 0.5,
+}
+
+
+
+
+def compute_criticality_score(
+   analysis: Dict[str, Any], triage: Dict[str, Any]
+) -> float:
+   """
+   Compute a 0-10 criticality score for a complaint.
+
+
+   Factors:
+     - severity weight (high=3, medium=2, low=1)
+     - category weight (Product/UX Issue=1.5 … General Feedback=0.5)
+     - negative sentiment strength (0-1, derived from sentiment_score)
+     - triage confidence (0-1)
+
+
+   Returns a float on a 0-10 scale where higher = more critical.
+   Threshold of 7.0 aligns with keyword_diagnostics P1 (severity_score >= 8).
+   """
+   sev = _SEVERITY_WEIGHT.get(analysis.get("severity", "low"), 1.0)
+   cat = _CATEGORY_WEIGHT.get(analysis.get("category", _DEFAULT_CATEGORY), 1.0)
+   sent = max(0.0, -float(analysis.get("sentiment_score", 0.0)))  # 0 to 1
+   conf = float(triage.get("confidence", 0.5))
+
+
+   raw = sev * cat * (sent * 0.4 + conf * 0.3 + 0.3)
+   # Normalize: max theoretical = 3 * 1.5 * 1.0 = 4.5
+   return min(10.0, round(raw * 10 / 4.5, 1))
+
+
+
+
+# ── Reddit API fetch ──────────────────────────────────────────────────────
+
 
 def fetch_reddit_post(url: str) -> Dict[str, Any]:
    """Fetch a single Reddit post via its public JSON endpoint."""
@@ -123,6 +187,7 @@ def fetch_reddit_post(url: str) -> Dict[str, Any]:
        logger.warning("Failed to fetch Reddit post: %s", exc)
        return {"error": str(exc)}
 
+
 # ── Analysis ──────────────────────────────────────────────────────────
 
 
@@ -130,7 +195,9 @@ def analyze_complaint(text: str) -> Dict[str, Any]:
    """Run sentiment/category/severity analysis on the complaint text."""
    return analyze_review(text)
 
+
 # ── Triage decision ──────────────────────────────────────────────────
+
 
 def _validate_triage(payload: Dict[str, Any]) -> Dict[str, Any]:
    """Validate and normalize triage LLM output."""
@@ -161,6 +228,7 @@ def _validate_triage(payload: Dict[str, Any]) -> Dict[str, Any]:
        "affected_component": component,
    }
 
+
 def decide_triage_action(
    analysis: Dict[str, Any], post: Dict[str, Any]
 ) -> Dict[str, Any]:
@@ -181,10 +249,11 @@ def decide_triage_action(
        post_url=post.get("url", "(unknown)"),
        sentiment=analysis.get("sentiment", "neutral"),
        sentiment_score=analysis.get("sentiment_score", 0.0),
-       category=analysis.get("category", "General Feedback"),
+       category=analysis.get("category", _DEFAULT_CATEGORY),
        severity=analysis.get("severity", "low"),
        reason=analysis.get("reason", ""),
    )
+
 
    try:
        response = client.responses.create(
@@ -199,41 +268,35 @@ def decide_triage_action(
        logger.warning("Triage LLM call failed: %s", exc)
        return {"error": str(exc)}
 
-# ── Customer response (KB-powered) ───────────────────────────────────
+
+# ── Customer response (Knowledge DataBase-powered) ───────────────────────────────────
 
 
 def generate_response_draft(
    post: Dict[str, Any], analysis: Dict[str, Any]
 ) -> str:
-   """Generate a KB-informed customer response draft."""
-   # Try to use OpenSearch KB if available
-   kb_hits: list = []
-   try:
-       endpoint = os.getenv("OPENSEARCH_ENDPOINT", "")
-    #    index = os.getenv("OPENSEARCH_INDEX", "ENTER THE INDEX NAME HERE")
-       index = os.getenv("OPENSEARCH_INDEX", "")
-    #    region = os.getenv("AWS_REGION", "us-west-2")
-       region = os.getenv("AWS_REGION", "")
-    #    if endpoint:
-        #    from utils.opensearch_kb import build_opensearch_client, search_kb
-        #    client = build_opensearch_client(endpoint, region)
-        #    query = f"{post.get('title', '')} {analysis.get('reason', '')}"
-        #    kb_hits = search_kb(client, query, index)
-   except Exception as exc:
-       logger.warning("KB search unavailable: %s", exc)
+   """Generate a KB-informed (knowledge base) customer response draft."""
+   from utils.synthetic_kb import lookup_synthetic_kb_hits
+
+   kb_hits = lookup_synthetic_kb_hits(
+       post_title=post.get("title", ""),
+       post_text=post.get("body") or post.get("text") or "",
+       category=analysis.get("category", _DEFAULT_CATEGORY),
+       severity=analysis.get("severity", "low"),
+       reason=analysis.get("reason", ""),
+       top_k=3,
+   )
 
 
    from utils.response_generator import generate_kb_response
    return generate_kb_response(
        post_title=post.get("title", ""),
        post_text=post.get("body") or post.get("text") or "",
-       category=analysis.get("category", "General Feedback"),
+       category=analysis.get("category", _DEFAULT_CATEGORY),
        severity=analysis.get("severity", "low"),
        reason=analysis.get("reason", ""),
        kb_hits=kb_hits,
    )
-
-
 
 
 # ── Display helpers ───────────────────────────────────────────────────
@@ -245,8 +308,6 @@ def _print_section(title: str, content: str) -> None:
    print(f"   {title}")
    print(f"{'=' * width}")
    print(content)
-
-
 
 
 def _print_analysis(analysis: Dict[str, Any]) -> None:
@@ -263,25 +324,26 @@ def _print_analysis(analysis: Dict[str, Any]) -> None:
    _print_section("COMPLAINT ANALYSIS", "\n".join(lines))
 
 
-
-
-def _print_triage(triage: Dict[str, Any]) -> None:
+def _print_triage(triage: Dict[str, Any], crit_score: float) -> None:
    action_label = (
        "Draft Customer Response" if triage["action"] == "customer_response"
        else "Create Jira Ticket"
    )
+   crit_label = (
+       "CRITICAL" if crit_score >= CRITICALITY_THRESHOLD
+       else "Below threshold"
+   )
    lines = [
-       f"  Action:     {action_label}",
-       f"  Confidence: {triage['confidence']:.0%}",
-       f"  Rationale:  {triage['rationale']}",
+       f"  Action:       {action_label}",
+       f"  Confidence:   {triage['confidence']:.0%}",
+       f"  Criticality:  {crit_score}/10 ({crit_label}, threshold={CRITICALITY_THRESHOLD})",
+       f"  Rationale:    {triage['rationale']}",
    ]
    if triage["action"] == "jira_ticket":
-       lines.append(f"  Summary:    {triage['suggested_summary']}")
-       lines.append(f"  Priority:   {triage['suggested_priority']}")
-       lines.append(f"  Component:  {triage['affected_component']}")
+       lines.append(f"  Summary:      {triage['suggested_summary']}")
+       lines.append(f"  Priority:     {triage['suggested_priority']}")
+       lines.append(f"  Component:    {triage['affected_component']}")
    _print_section("TRIAGE DECISION", "\n".join(lines))
-
-
 
 
 def _print_form_preview(form_data: Dict[str, str]) -> None:
@@ -298,7 +360,7 @@ def _print_form_preview(form_data: Dict[str, str]) -> None:
        f"  Contract:    {form_data.get('contract_status', 'N/A')}",
        f"  Problem:     {problem_preview}",
    ]
-   _print_section("TICKET INTAKE FORM PREVIEW", "\n".join(lines))
+   _print_section("INTAKE FORM PREVIEW", "\n".join(lines))
 
 
 # ── Confirmation ──────────────────────────────────────────────────────
@@ -312,8 +374,6 @@ def confirm(prompt_text: str) -> bool:
    except (EOFError, KeyboardInterrupt):
        print()
        return False
-
-
 
 
 # ── Main flow ─────────────────────────────────────────────────────────
@@ -432,7 +492,9 @@ def main() -> None:
            return
 
 
-   _print_triage(triage)
+   # Step 3b: Compute criticality score
+   crit_score = compute_criticality_score(analysis, triage)
+   _print_triage(triage, crit_score)
 
 
    # Step 4: Allow override
@@ -447,7 +509,8 @@ def main() -> None:
                triage["suggested_summary"] = input("  Ticket summary: ").strip() or f"[Reddit] {post.get('title', 'Untitled')[:80]}"
        else:
            triage["action"] = "customer_response"
-       _print_triage(triage)
+       crit_score = compute_criticality_score(analysis, triage)
+       _print_triage(triage, crit_score)
 
 
    # Step 5: Execute action
@@ -465,21 +528,32 @@ def main() -> None:
 
 
    elif triage["action"] == "jira_ticket":
+       if crit_score < CRITICALITY_THRESHOLD:
+           print(f"\n  Criticality {crit_score}/10 is below threshold "
+                 f"({CRITICALITY_THRESHOLD}). This may not warrant an intake form.")
+           if not confirm("Proceed with the Jira intake form anyway?"):
+               print("\nSkipped. Consider drafting a customer response instead.")
+               return
+
+
        print("\nBuilding intake form data...")
        form_data = build_form_data(post, analysis, triage)
        _print_form_preview(form_data)
 
 
-       if confirm("Open browser and fill out the intake form?"):
-           print("\nOpening browser to fill out the Intake form...")
-           print("(Review the form in the browser, then come back here)")
-           result = fill_intake_form(form_data)
+       if confirm("Save synthetic Jira intake artifact locally?"):
+           print("\nSubmitting synthetic intake (mock mode)...")
+           result = submit_mock_intake_form(form_data)
            if result["success"]:
-               print(f"\n{result['message']}")
+               print(
+                   f"\nMock intake submitted: {result['mock_ticket_id']} "
+                   f"at {result['submitted_at']}\nArtifact: {result['artifact_path']}"
+               )
            else:
-               print(f"\nForm filling failed: {result['error']}")
+               print(f"\nMock submit failed: {result['error']}")
        else:
            print("\nIntake form cancelled.")
+
 
 if __name__ == "__main__":
    main()

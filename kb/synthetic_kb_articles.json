@@ -1,0 +1,122 @@
+[
+  {
+    "id": "kb-001",
+    "title": "Delivery Delays and Resend Steps",
+    "category": "Order Issue",
+    "severity_tags": ["low", "medium"],
+    "keywords": ["delivery", "arrive", "not received", "email", "resend", "order status"],
+    "snippet": "If a digital card has not arrived, confirm the recipient email, check spam folders, and verify order status before requesting a resend.",
+    "resolution_steps": [
+      "Confirm order email and recipient email are correct.",
+      "Check spam or promotions folders for fulfillment messages.",
+      "Use the order status page to confirm processing state.",
+      "If still missing after processing, contact support to request resend."
+    ],
+    "url_stub": "/support/order-status-and-resend"
+  },
+  {
+    "id": "kb-002",
+    "title": "Activation Failure: Troubleshooting Invalid or Declined Card",
+    "category": "Product Issue",
+    "severity_tags": ["medium", "high"],
+    "keywords": ["activation", "invalid code", "declined", "not working", "redeem"],
+    "snippet": "Activation failures are often caused by entry errors, pending activation windows, or merchant-side validation mismatch.",
+    "resolution_steps": [
+      "Re-enter code values and verify ZIP/PIN details.",
+      "Wait for posted activation window if purchase was recent.",
+      "Retry redemption at supported merchants only.",
+      "Escalate with transaction timestamp if failure persists."
+    ],
+    "url_stub": "/support/activation-troubleshooting"
+  },
+  {
+    "id": "kb-003",
+    "title": "Balance Mismatch and Prior Authorization Holds",
+    "category": "Product Issue",
+    "severity_tags": ["medium", "high"],
+    "keywords": ["balance", "missing funds", "zero", "used already", "hold", "authorization"],
+    "snippet": "Balance discrepancies can occur due to prior authorization holds or partial settlements not yet released.",
+    "resolution_steps": [
+      "Check current balance and recent transactions.",
+      "Look for pending authorization holds from merchant checks.",
+      "Wait for hold release period where applicable.",
+      "Submit dispute request if balance does not normalize."
+    ],
+    "url_stub": "/support/balance-discrepancy"
+  },
+  {
+    "id": "kb-004",
+    "title": "Refund and Chargeback Timeline Expectations",
+    "category": "Order Issue",
+    "severity_tags": ["medium"],
+    "keywords": ["refund", "chargeback", "double charge", "reversal", "billing"],
+    "snippet": "Refund and chargeback handling depends on payment method and issuing timelines, with updates provided during review.",
+    "resolution_steps": [
+      "Collect order number and payment confirmation.",
+      "Submit refund or billing issue ticket with evidence.",
+      "Track case updates from support communications.",
+      "Escalate only if SLA window has passed."
+    ],
+    "url_stub": "/support/refund-and-billing"
+  },
+  {
+    "id": "kb-005",
+    "title": "Support Escalation Path for Unresolved Cases",
+    "category": "Customer Support",
+    "severity_tags": ["medium", "high"],
+    "keywords": ["support", "no response", "ignored", "agent", "escalate"],
+    "snippet": "When first-line support stalls, escalation requires case ID, prior contact history, and concise issue summary.",
+    "resolution_steps": [
+      "Provide existing case number and latest response time.",
+      "Summarize unresolved issue in one clear paragraph.",
+      "Request escalation review by specialist queue.",
+      "Set callback or follow-up expectation."
+    ],
+    "url_stub": "/support/escalation-guidelines"
+  },
+  {
+    "id": "kb-006",
+    "title": "Fraud and Unauthorized Use Reporting Checklist",
+    "category": "Customer Support",
+    "severity_tags": ["high"],
+    "keywords": ["fraud", "scam", "unauthorized", "stolen", "compromised"],
+    "snippet": "Fraud incidents should be reported immediately with card details, transaction timestamps, and supporting evidence.",
+    "resolution_steps": [
+      "Stop sharing card details publicly.",
+      "Capture suspicious transaction times and amounts.",
+      "Submit fraud report through support intake.",
+      "Monitor account and payment statements for new activity."
+    ],
+    "url_stub": "/support/fraud-reporting"
+  },
+  {
+    "id": "kb-007",
+    "title": "Checkout Errors and Payment Retry Guidance",
+    "category": "UX Issue",
+    "severity_tags": ["medium"],
+    "keywords": ["checkout", "payment failed", "cart", "purchase", "error"],
+    "snippet": "Checkout failures may come from browser state, payment verification, or temporary gateway interruption.",
+    "resolution_steps": [
+      "Retry in private browsing mode or clear session cache.",
+      "Validate billing details and payment limits.",
+      "Attempt purchase after brief wait if gateway unavailable.",
+      "Contact support with error timestamp and screenshot."
+    ],
+    "url_stub": "/support/checkout-errors"
+  },
+  {
+    "id": "kb-008",
+    "title": "PIN Reset and Redemption Configuration",
+    "category": "UX Issue",
+    "severity_tags": ["low", "medium"],
+    "keywords": ["pin", "reset pin", "redeem", "merchant", "configuration"],
+    "snippet": "PIN-related redemption issues are often resolved by resetting PIN and verifying merchant acceptance requirements.",
+    "resolution_steps": [
+      "Reset PIN using self-service tools where available.",
+      "Verify merchant accepts that card type.",
+      "Reattempt with corrected payment sequence.",
+      "Escalate if merchant decline reason is unclear."
+    ],
+    "url_stub": "/support/pin-and-redemption"
+  }
+]

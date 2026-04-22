@@ -1,6 +1,10 @@
 __pycache__/
 *.py[cod]
 .env
+.env.local
 .venv/
-# utils/reddit_affiliate_filter.py
-# utils/keyword_diagnostics.py
+utils/reddit_affiliate_filter.py
+utils/keyword_diagnostics.py
+# .dockerignore
+triage_history/
+#triage_agent.py 

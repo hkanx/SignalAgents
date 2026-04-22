@@ -1,25 +1,19 @@
-# Note: This file may not be actively used in the current version of the project, but is retained for reference.
 """
 Jira client for creating issues from triage decisions.
 
-
 Supports two modes:
  1. REST API v3 — direct issue creation via Basic auth
- 2. Intake form — fills out an Intake form via Playwright browser automation
-
+ 2. Intake form — fills out the D2C Intake form via browser automation
 
 Configuration is read from environment variables (see .env.example).
 """
-
 
 import logging
 import os
 from typing import Any, Dict, Optional
 
-
 import requests
 from dotenv import load_dotenv
-from playwright.sync_api import sync_playwright
 
 
 load_dotenv()
@@ -38,6 +32,7 @@ JIRA_PRIORITY_MAP = {
    "low": "Low",
    "lowest": "Lowest",
 }
+
 
 def _get_jira_config() -> Dict[str, str]:
    """Read Jira configuration from environment variables."""
@@ -71,12 +66,14 @@ def _get_jira_config() -> Dict[str, str]:
        "issue_type": issue_type,
    }
 
+
 def _build_adf_description(
    post: Dict[str, Any],
    analysis: Dict[str, Any],
    triage: Dict[str, Any],
 ) -> Dict[str, Any]:
    """Build an Atlassian Document Format description for the Jira issue."""
+
 
    def _text_node(text: str) -> Dict[str, Any]:
        return {"type": "text", "text": text}
@@ -125,6 +122,7 @@ def _build_adf_description(
        ],
    }
 
+
 def build_issue_fields(
    post: Dict[str, Any],
    analysis: Dict[str, Any],
@@ -153,7 +151,7 @@ def build_issue_fields(
        "summary": summary,
        "priority": {"name": priority_name},
        "description": _build_adf_description(post, analysis, triage),
-       "labels": ["hannah-llmpathy"],
+       "labels": ["hannah-signalagents"],
    }
 
 
@@ -209,6 +207,7 @@ def create_jira_issue(fields: Dict[str, Any]) -> Dict[str, Any]:
        "Accept": _JSON_CONTENT_TYPE,
    }
 
+
    try:
        resp = requests.post(
            url,
@@ -217,6 +216,7 @@ def create_jira_issue(fields: Dict[str, Any]) -> Dict[str, Any]:
            auth=(config["email"], config["token"]),
            timeout=30,
        )
+
 
        if resp.status_code in (200, 201):
            data = resp.json()
@@ -228,12 +228,14 @@ def create_jira_issue(fields: Dict[str, Any]) -> Dict[str, Any]:
                "id": data.get("id", ""),
            }
 
+
        return {
            "success": False,
            "error": f"Jira API returned {resp.status_code}",
            "status_code": resp.status_code,
            "response_body": resp.text[:1000],
        }
+
 
    except requests.RequestException as exc:
        logger.warning("Jira API request failed: %s", exc)
@@ -257,6 +259,7 @@ def get_create_meta(project_key: str) -> Dict[str, Any]:
    url = f"{config['base_url']}/rest/api/3/issue/createmeta/{project_key}/issuetypes"
    headers = {"Accept": _JSON_CONTENT_TYPE}
 
+
    try:
        resp = requests.get(
            url,
@@ -270,14 +273,13 @@ def get_create_meta(project_key: str) -> Dict[str, Any]:
    except requests.RequestException as exc:
        return {"error": str(exc)}
 
-# ── Intake form via Playwright ────────────────────────────────────────
+
+# ── Intake form — fills out the D2C Intake form via browser automation ────────────────────────────────────────
 
 
-# FORM_URL = (
-#    "ENTER INTAKE FORM URL HERE"
-# )
 FORM_URL = (
-   ""
+   "https://bhnetwork.atlassian.net/jira/software/c/form/"
+   "d9d5b640-5388-4119-b043-91649e3b5f3b"
 )
 
 
@@ -290,6 +292,7 @@ _URGENCY_MAP = {
    "lowest": "Low",
 }
 
+
 def build_form_data(
    post: Dict[str, Any],
    analysis: Dict[str, Any],
@@ -300,12 +303,13 @@ def build_form_data(
    Build a dict of form field values from triage results.
 
 
-   Keys match the Intake: Issue Resolution Request Form fields.
+   Keys match the D2C Intake: Issue Resolution Request Form fields.
    """
    summary = (
        triage.get("suggested_summary")
        or f"[Reddit] {post.get('title', 'Untitled')[:80]}"
    )
+
 
    post_body = post.get("body") or post.get("text") or "(no details)"
    source_url = post.get("url", "N/A")
@@ -317,6 +321,7 @@ def build_form_data(
        f"Source: {source_url}\n"
        f"Author: u/{post.get('author', 'unknown')}"
    )
+
 
    proposed_solutions = (
        f"Investigate the reported {triage.get('affected_component', 'issue')} "
@@ -354,8 +359,7 @@ def build_form_data(
    return {
        "email": email or os.getenv("JIRA_USER_EMAIL", ""),
        "summary": summary,
-       # INSERT TEAM BEING REQUESTED NAME IF APPLICABLE
-       "requesting_team": "Customer Support",
+       "requesting_team": "hannah-signalagents",
        "target_audience": "External Customers",
        "problem_statement": problem_statement,
        "proposed_solutions": proposed_solutions,
@@ -367,6 +371,7 @@ def build_form_data(
        "desired_delivery_timeframe": "30 Days",  # exact match: <30, 30, 60, 90, 120 Days / 6 Months / >6 Months
        "contract_status": "Not Applicable",
    }
+
 
 def _select_dropdown(page, combobox_index: int, value: str) -> None:
    """Click a combobox by index and select an option by visible text."""
@@ -384,6 +389,7 @@ def _select_dropdown(page, combobox_index: int, value: str) -> None:
        page.keyboard.press("Escape")
    page.wait_for_timeout(300)
 
+
 def _fill_rich_text(page, field_index: int, text: str) -> None:
    """Fill a rich-text editor field by its index among [role='textbox'] elements."""
    editors = page.query_selector_all('[role="textbox"]')
@@ -395,24 +401,81 @@ def _fill_rich_text(page, field_index: int, text: str) -> None:
    page.keyboard.type(text, delay=5)
    page.wait_for_timeout(200)
 
+
+def _fill_form_fields(page, form_data: Dict[str, str]) -> None:
+   """Fill all fields on the D2C Intake form. Extracted for reuse."""
+   # Dismiss cookie banner if present
+   try:
+       only_necessary = page.get_by_text("Only necessary")
+       if only_necessary.count() > 0:
+           only_necessary.first.click()
+           page.wait_for_timeout(500)
+   except Exception:
+       pass
+
+
+   page.fill('input[name="email"]', form_data["email"])
+   page.fill('input[name="summary"]', form_data["summary"])
+   page.fill('input[name="customfield_12071"]', form_data["requesting_team"])
+   _select_dropdown(page, 0, form_data["target_audience"])
+   _fill_rich_text(page, 0, form_data["problem_statement"])
+   _fill_rich_text(page, 1, form_data["proposed_solutions"])
+   _fill_rich_text(page, 2, form_data["expected_benefits"])
+   _select_dropdown(page, 1, form_data["urgency"])
+   _fill_rich_text(page, 3, form_data["urgency_reason"])
+   _select_dropdown(page, 2, form_data["requirements_defined"])
+   _fill_rich_text(page, 4, form_data["risks_and_dependencies"])
+   _select_dropdown(page, 3, form_data["desired_delivery_timeframe"])
+   _select_dropdown(page, 4, form_data["contract_status"])
+
+
+
+
 def fill_intake_form(
    form_data: Dict[str, str],
    headless: bool = False,
    auto_submit: bool = False,
+   screenshot_dir: Optional[str] = None,
 ) -> Dict[str, Any]:
    """
-   Open the Intake form in a browser and fill it out.
+   Open the D2C Intake form in a browser and fill it out.
 
-   By default opens a visible browser and pauses before submit so
-   the user can review. Set auto_submit=True to submit automatically
-   (still requires reCAPTCHA to pass).
+
+   When headless=True (Streamlit context), fills the form, saves a
+   timestamped screenshot + metadata to screenshot_dir, and closes.
+
+
+   When headless=False (CLI context), opens a visible browser and
+   pauses for user review before closing.
+
 
    Returns:
-       {"success": True, "message": "..."} or {"success": False, "error": "..."}
+       {"success": True, "message": "...", "screenshot": "path"}
+       or {"success": False, "error": "..."}
    """
+   import json as _json
+   from datetime import datetime as _dt
+   try:
+       from playwright.sync_api import sync_playwright
+   except Exception as exc:  # noqa: BLE001
+       return {"success": False, "error": f"Playwright unavailable: {exc}"}
+
+
+   # Determine screenshot path
+   timestamp = _dt.now().strftime("%Y%m%d_%H%M%S")
+   if screenshot_dir:
+       os.makedirs(screenshot_dir, exist_ok=True)
+       screenshot_path = os.path.join(screenshot_dir, f"{timestamp}.png")
+       metadata_path = os.path.join(screenshot_dir, f"{timestamp}.json")
+   else:
+       screenshot_path = "/tmp/jira_form_filled.png"
+       metadata_path = None
+
+
    with sync_playwright() as p:
        browser = p.chromium.launch(headless=headless)
        page = browser.new_context().new_page()
+
 
        try:
            logger.info("Navigating to intake form...")
@@ -420,108 +483,115 @@ def fill_intake_form(
            page.wait_for_timeout(3000)
 
 
-           # Dismiss cookie banner if present
-           try:
-               only_necessary = page.get_by_text("Only necessary")
-               if only_necessary.count() > 0:
-                   only_necessary.first.click()
-                   page.wait_for_timeout(500)
-           except Exception:
-               pass
-
-
-           # 1. Email (text input)
-           page.fill('input[name="email"]', form_data["email"])
-
-
-           # 2. Summary (text input)
-           page.fill('input[name="summary"]', form_data["summary"])
-
-
-           # 3. Requesting Team (text input)
-           page.fill(
-               'input[name="customfield_12071"]',
-               form_data["requesting_team"],
-           )
-
-
-           # 4. Target Audience (dropdown index 0)
-           _select_dropdown(page, 0, form_data["target_audience"])
-
-
-           # 5. Problem Statement (rich text index 0)
-           _fill_rich_text(page, 0, form_data["problem_statement"])
-
-
-           # 6. Proposed Solutions (rich text index 1)
-           _fill_rich_text(page, 1, form_data["proposed_solutions"])
-
-
-           # 7. Expected Benefits (rich text index 2)
-           _fill_rich_text(page, 2, form_data["expected_benefits"])
-
-
-           # 8. Urgency (dropdown index 1)
-           _select_dropdown(page, 1, form_data["urgency"])
-
-
-           # 9. Urgency Reason (rich text index 3)
-           _fill_rich_text(page, 3, form_data["urgency_reason"])
-
-
-           # 10. Requirements Defined? (dropdown index 2)
-           _select_dropdown(page, 2, form_data["requirements_defined"])
-
-
-           # 11. Risks and Dependencies (rich text index 4)
-           _fill_rich_text(page, 4, form_data["risks_and_dependencies"])
-
-
-           # 12. Desired Delivery Timeframe (dropdown index 3)
-           _select_dropdown(page, 3, form_data["desired_delivery_timeframe"])
-
-
-           # 13. Contract Status (dropdown index 4)
-           _select_dropdown(page, 4, form_data["contract_status"])
-
-
+           _fill_form_fields(page, form_data)
            logger.info("Form filled successfully.")
 
 
-           # Screenshot the filled form
-           page.screenshot(path="/tmp/jira_form_filled.png", full_page=True)
+           page.screenshot(path=screenshot_path, full_page=True)
+
+
+           # Save metadata alongside screenshot
+           if metadata_path:
+               meta = {
+                   "timestamp": timestamp,
+                   "summary": form_data.get("summary", ""),
+                   "urgency": form_data.get("urgency", ""),
+                   "email": form_data.get("email", ""),
+                   "requesting_team": form_data.get("requesting_team", ""),
+                   "screenshot": os.path.basename(screenshot_path),
+               }
+               with open(metadata_path, "w") as f:
+                   _json.dump(meta, f, indent=2)
 
 
            if auto_submit:
                page.get_by_role("button", name="Submit").click()
                page.wait_for_timeout(5000)
-               page.screenshot(
-                   path="/tmp/jira_form_submitted.png", full_page=True
-               )
+               submit_path = screenshot_path.replace(".png", "_submitted.png")
+               page.screenshot(path=submit_path, full_page=True)
                browser.close()
                return {
                    "success": True,
-                   "message": "Form submitted. Screenshot at /tmp/jira_form_submitted.png",
+                   "message": f"Form submitted. Screenshot at {submit_path}",
+                   "screenshot": submit_path,
                }
 
-           # Pause for user review
+           if headless:
+               # Streamlit context — no terminal, just close
+               browser.close()
+               return {
+                   "success": True,
+                   "message": f"Form filled. Screenshot at {screenshot_path}",
+                   "screenshot": screenshot_path,
+               }
+
+
+           # CLI context — pause for user review
            print("\n  Form has been filled out in the browser.")
-           print("  Review it, then come back here.")
-           print("  Screenshot saved to /tmp/jira_form_filled.png")
+           print(f"  Screenshot saved to {screenshot_path}")
            input("  Press Enter to close the browser...")
            browser.close()
            return {
                "success": True,
                "message": "Form filled. User reviewed in browser.",
+               "screenshot": screenshot_path,
            }
+
 
        except Exception as exc:
            logger.warning("Form filling failed: %s", exc)
            try:
-               page.screenshot(
-                   path="/tmp/jira_form_error.png", full_page=True
-               )
+               err_path = screenshot_path.replace(".png", "_error.png")
+               page.screenshot(path=err_path, full_page=True)
            except Exception:
                pass
            browser.close()
            return {"success": False, "error": str(exc)}
+
+
+def submit_mock_intake_form(
+   form_data: Dict[str, str],
+   output_dir: Optional[str] = None,
+) -> Dict[str, Any]:
+   """
+   Synthetic/local Jira intake submit.
+
+   Writes a timestamped JSON artifact and returns a mock ticket reference.
+   No network or browser automation is used.
+   """
+   import json as _json
+   from datetime import datetime as _dt
+
+   required = ["summary", "problem_statement", "urgency", "requesting_team"]
+   missing = [k for k in required if not str(form_data.get(k, "")).strip()]
+   if missing:
+       return {"success": False, "error": f"Missing required fields: {', '.join(missing)}"}
+
+   now = _dt.now()
+   timestamp = now.strftime("%Y%m%d_%H%M%S")
+   mock_ticket_id = f"MOCK-{now.strftime('%Y%m%d')}-{now.strftime('%H%M%S')}"
+   out_dir = output_dir or os.path.join(os.path.dirname(__file__), "..", "triage_history")
+   out_dir = os.path.abspath(out_dir)
+   os.makedirs(out_dir, exist_ok=True)
+
+   artifact_path = os.path.join(out_dir, f"{timestamp}.json")
+   artifact = {
+       "mode": "synthetic",
+       "timestamp": timestamp,
+       "submitted_at": now.isoformat(),
+       "mock_ticket_id": mock_ticket_id,
+       "summary": form_data.get("summary", ""),
+       "urgency": form_data.get("urgency", ""),
+       "requesting_team": form_data.get("requesting_team", ""),
+       "email": form_data.get("email", ""),
+       "form_data": form_data,
+   }
+   with open(artifact_path, "w", encoding="utf-8") as file:
+       _json.dump(artifact, file, indent=2)
+
+   return {
+       "success": True,
+       "mock_ticket_id": mock_ticket_id,
+       "submitted_at": artifact["submitted_at"],
+       "artifact_path": artifact_path,
+   }
