@@ -38,7 +38,7 @@ SignalAgents closes that gap.
 - Monitor brand health with a single score and trend line
 - Track sentiment shifts by topic, keyword, and subreddit
 - Generate ready-to-send customer response drafts powered by your knowledge base
-- Use competitor analysis mode to benchmark against the gift card and e-commerce landscape
+- Use competitor analysis mode to benchmark against the e-commerce landscape
 
 
 ### Product
@@ -80,7 +80,7 @@ When a complaint crosses the criticality threshold (default 7.0/10), the system 
 
 
 ### 4. Multi-Brand & Competitor Analysis
-SignalAgents is not locked to a single brand. Change the company name and synonyms in the sidebar, and you can analyze **any brand or competitor** in the gift card, e-commerce, or fintech space. Run it for your competitors to understand their pain points, or benchmark your brand health against the landscape.
+SignalAgents is not locked to a single brand. Change the company name and synonyms in the sidebar, and you can analyze **any brand or competitor** in the product, e-commerce, or fintech space. Run it for your competitors to understand their pain points, or benchmark your brand health against the landscape.
 
 
 ---
@@ -261,14 +261,14 @@ Reddit's public JSON API and OpenAI's API both enforce rate limits. If you encou
 SignalAgents is designed to analyze **any brand** — not just your own. Simply change the company name and synonyms in the sidebar:
 
 
-- **Your brand**: `Giftcards.com` with synonyms `bhn, blackhawk network, giftcardmall, CashStar, tango card`
-- **A competitor**: `Raise.com` with synonyms `raise, raise gift cards, raise.com reviews`
-- **A category**: `prepaid visa gift card` with synonyms `visa gift card, mastercard gift card, amex gift card`
+- **Your brand**: `BRAND NAME` with synonyms `SYNONYMS OF YOUR BRAND, SUBSIDIARIES, OR ABBREVIATIONS`
+- **A competitor**: `COMPETITOR BRAND NAME` with synonyms `SYNONYMS OF YOUR COMPETITOR BRAND, SUBSIDIARIES, OR ABBREVIATIONS`
+- **A category**: `BRAND CATEGORY` with synonyms `SYNONYMS OF BRAND CATEGORY`
 
 
 This makes SignalAgents a powerful tool for:
 - **Competitive benchmarking** — compare sentiment scores and issue themes across brands
-- **Market landscape analysis** — understand pain points across the entire gift card / e-commerce category
+- **Market landscape analysis** — understand pain points across the entire e-commerce category
 - **Opportunity identification** — find gaps where competitors are failing that your brand can win
 
 
@@ -301,3 +301,72 @@ This makes SignalAgents a powerful tool for:
 - **Cross-team alignment** — a single source of truth for Support, Product, and Engineering
 - **Scalable across brands** — analyze your brand, competitors, or the entire market with one tool
 - **Audit trail** — every Jira submission is timestamped and screenshotted for compliance and tracking
+---
+
+## Parallel Frontend Upgrade (Streamlit + Next.js + FastAPI)
+
+This repository now supports a portfolio-grade frontend stack in parallel with Streamlit:
+
+- Streamlit dashboard: `http://localhost:8501`
+- FastAPI backend: `http://localhost:8000`
+- Next.js frontend: `http://localhost:3000`
+
+The FastAPI layer reuses existing Python logic from the Streamlit code path (Reddit ingestion/filtering, analysis, diagnostics, and response playbook generation).
+
+### New folders
+
+- `api/` — FastAPI wrapper over existing Python business logic
+- `frontend/` — Next.js + TypeScript dashboard UI
+
+### API Endpoints
+
+- `GET /health`
+- `POST /analyze/run`
+- `GET /analyze/results/{run_id}`
+
+### Run in parallel
+
+Use separate terminals:
+
+```bash
+# Terminal 1: Streamlit (existing app)
+make run-streamlit
+
+# Terminal 2: FastAPI wrapper
+make run-api
+
+# Terminal 3: Next.js frontend
+cd frontend
+npm install
+npm run dev
+```
+
+### Environment variables (additional)
+
+Add these to `.env` (also listed in `.env.example`):
+
+- `FRONTEND_ORIGINS=http://localhost:3000,http://127.0.0.1:3000`
+- `NEXT_PUBLIC_API_BASE_URL=http://localhost:8000`
+
+### Notes
+
+- `BING_API_KEY` is only needed when source mode includes `Web`.
+- In Reddit-only mode, Bing is not required.
+- The new API keeps results in memory for the current process runtime.
+
+### Run all services with Docker Compose
+
+```bash
+docker compose up --build
+```
+
+Services:
+- Streamlit: `http://localhost:8501`
+- FastAPI: `http://localhost:8000`
+- Next.js: `http://localhost:3000`
+
+Stop all services:
+
+```bash
+docker compose down
+```

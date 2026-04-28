@@ -9,3 +9,5 @@ boto3
 requests-aws4auth
 opensearch-py
 playwright
+fastapi
+uvicorn

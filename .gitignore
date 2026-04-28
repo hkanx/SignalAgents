@@ -8,3 +8,7 @@ utils/keyword_diagnostics.py
 # .dockerignore
 triage_history/
 #triage_agent.py 
+# Next.js frontend
+frontend/node_modules/
+frontend/.next/
+frontend/out/

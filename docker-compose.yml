@@ -1,0 +1,46 @@
+services:
+  streamlit:
+    image: python:3.11-slim
+    container_name: signalagents-streamlit
+    working_dir: /app
+    command: >
+      sh -lc "pip install --no-cache-dir -r requirements.txt &&
+              streamlit run app.py --server.port 8501 --server.address 0.0.0.0"
+    volumes:
+      - .:/app
+    env_file:
+      - .env
+    ports:
+      - "8501:8501"
+    restart: unless-stopped
+
+  api:
+    image: python:3.11-slim
+    container_name: signalagents-api
+    working_dir: /app
+    command: >
+      sh -lc "pip install --no-cache-dir -r requirements.txt &&
+              uvicorn api.main:app --host 0.0.0.0 --port 8000 --reload"
+    volumes:
+      - .:/app
+    env_file:
+      - .env
+    ports:
+      - "8000:8000"
+    restart: unless-stopped
+
+  frontend:
+    image: node:20-alpine
+    container_name: signalagents-frontend
+    working_dir: /app/frontend
+    command: >
+      sh -lc "npm install && npm run dev -- --hostname 0.0.0.0 --port 3000"
+    volumes:
+      - .:/app
+    environment:
+      NEXT_PUBLIC_API_BASE_URL: http://localhost:8000
+    ports:
+      - "3000:3000"
+    depends_on:
+      - api
+    restart: unless-stopped

@@ -4,7 +4,7 @@ Complaint Triage Agent — standalone CLI script.
 
 Reads a Reddit complaint post, analyzes it, and either:
  A) Drafts a customer response (using KB articles), or
- B) Creates a Jira ticket for giftcards.com developers.
+ B) Creates a Jira ticket for company developers.
 
 
 Always confirms with the user before submitting anything.
@@ -47,7 +47,7 @@ REDDIT_URL_PATTERN = re.compile(
 
 
 TRIAGE_SYSTEM_PROMPT = (
-   "You are a complaint triage specialist for giftcards.com (operated by Blackhawk Network). "
+   "You are a complaint triage specialist for a company. "
    "Your job is to decide whether a customer complaint should receive a direct customer response "
    "or should be escalated as a bug/issue ticket for the development team."
 )
