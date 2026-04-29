@@ -237,6 +237,34 @@ streamlit run app.py
 python triage_agent.py
 ```
 
+### 5. Run retrieval evaluation harness (optional)
+
+Create an input JSON that follows `data/retrieval_eval_input.schema.json`, then run:
+
+```bash
+python scripts/run_retrieval_eval.py \
+  --input /path/to/retrieval_eval_input.json \
+  --output-json retrieval_eval_report.json \
+  --output-md retrieval_eval_summary.md
+```
+
+This evaluates `bm25`, `vector`, and `hybrid` retrieval modes at `k=5,10,20` and outputs:
+- `recall@k`
+- `mrr@k`
+- `ndcg@k`
+
+Build a stronger retrieval eval seed set from analyzed rows:
+
+```bash
+python scripts/build_retrieval_eval_seed.py \
+  --input /path/to/analyzed_rows.json \
+  --out-seed data/retrieval_eval_seed.json \
+  --out-stats data/retrieval_eval_seed_stats.json \
+  --out-summary data/retrieval_eval_seed_summary.md
+```
+
+If you are testing with a small sample file, add `--allow-small` to bypass quality-gate blocking.
+
 
 ---
 

@@ -1,0 +1,1867 @@
+{
+  "meta": {
+    "created_at": "2026-04-29T01:23:41.667008+00:00",
+    "generator": "build_retrieval_eval_seed.py",
+    "min_group_size": 2,
+    "max_relevant_per_query": 3,
+    "min_hard_negatives_per_query": 5,
+    "max_hard_negatives_per_query": 12
+  },
+  "documents": [
+    {
+      "doc_id": "reddit_1lgw4hp",
+      "text": "Giftcardmall is not working and I have no idea why [Giftcards.com](http://Giftcards.com) redirects me to [https://mygift.giftcardmall.com/](https://mygift.giftcardmall.com/) for my visa gift cards but it gives an arbitrary error everytime \"We are unable to process your request at this time. If you continue to receive this error, please contact Cardholder services by calling the number on the back of your card.\" I don't know if it takes time to activate from the Point of sale or what the issue is.",
+      "meta": {
+        "category": "Product Issue",
+        "reason": "User experiences consistent errors with gift card activation and cannot use the product.",
+        "subreddit": "CreditCards",
+        "source_ref": "https://reddit.com/r/CreditCards/comments/1lgw4hp/giftcardmall_is_not_working_and_i_have_no_idea_why/"
+      }
+    },
+    {
+      "doc_id": "reddit_1p5ykra",
+      "text": "Stolen gift card value/scam website? I activated, or thought I did, a gift card through [giftcardmall.com/mygift](http://giftcardmall.com/mygift) yesterday and found today that the total amount on the card had been drained by a company called sp smgm apparel. So apparently I may have been redirected to a scam site and not noticed it. I called the number on the back of the gift card and after a long conversation the customer service rep said they would be sending me an email. Just received one from Blackhawk network, but the amount of personal information they require, well not giving that over the web. Even if was willing to do so as the card was a gift I don't have the purchase info they require. So it's $50 down the drain and I'll be complaining on trustpilot.",
+      "meta": {
+        "category": "Customer Support",
+        "reason": "User reports potential scam and poor resolution from customer service requiring excessive personal information.",
+        "subreddit": "CreditCards",
+        "source_ref": "https://reddit.com/r/CreditCards/comments/1p5ykra/stolen_gift_card_valuescam_website/"
+      }
+    },
+    {
+      "doc_id": "reddit_1pwxc6g",
+      "text": "my computer's OCR converted giftcardmall.com to giftcardmail.com, and I accidentally input my Visa GC info onto scam site giftcardmail.com; filed complaint with ic3.gov My SYW/Thank You MC had one of its 10% back on retail stores promotions, so I bought a $200 prepaid Visa gift card at Staples when Staples had one of its promotions waiving the activation fee. To register the gift card so that I could use it online, I took a photo of the card. I then opened the photo with Mac Preview. On the card, it says \"Cardholder services &amp; balance inquiries: [www.giftcardmall.com/mygift](http://www.giftcardmall.com/mygift) \" Mac Preview makes the link clickable (see photo here: https://imgur.com/a/0UEy0jp ), so I clicked on it, and I filled in the card number, CVV, and expiration date on the website, at which point it claimed I had a balance of only $3. I panicked and then realized Mac Preview had converted the link from www.giftcardmall.com/mygift to www.giftcardmail.com/mygift. I am certain giftcardmail.com is a scam site set up to harvest card numbers based on errors like this. I moved quickly and used most of the card to pay my estimated taxes for my state so I did not lose $200. The convenience fee charged ended up being less than stated, so I still have a balance of less than $1 on the card. any ideas how to liquidate it online? So how does this scam work? How would they have stolen the $200 on my card had I not moved at light speed to register the card at [giftcardmall.com](http://giftcardmall.com) and pay my estimated taxes? I filed a complaint with [ic3.gov](http://ic3.gov) about giftcardmail.com. Any other suggestions where I should file a complaint so giftcardmail.com can't victimize any consumers?",
+      "meta": {
+        "category": "Product Issue",
+        "reason": "User experienced a scam due to OCR error leading to potential financial loss and filed a complaint.",
+        "subreddit": "CreditCards",
+        "source_ref": "https://reddit.com/r/CreditCards/comments/1pwxc6g/my_computers_ocr_converted_giftcardmallcom_to/"
+      }
+    },
+    {
+      "doc_id": "reddit_1mj436s",
+      "text": "Visa and MC gift card balance tracking I have been buying the Visa and MC gift cards in Staples when the fees are waived, and use them for different purchases. That\u2019s been working great. I registered my GCs online and I track the balances there too. But off late - I receive the message - \u201cWe are unable to process your request at this time. You can call customer service directly\u201d. Initially, I ignored thinking it must be some technical issue. But seeing this same message for 2 days now. Any idea what\u2019s going on? These are the links that I use: Visa: Mygift.giftcardmall.com MC: Mcgift.giftcardmall.com",
+      "meta": {
+        "category": "Product Issue",
+        "reason": "User reports inability to track gift card balances due to repeated error messages, indicating a technical problem.",
+        "subreddit": "CreditCards",
+        "source_ref": "https://reddit.com/r/CreditCards/comments/1mj436s/visa_and_mc_gift_card_balance_tracking/"
+      }
+    },
+    {
+      "doc_id": "reddit_1m1jmqo",
+      "text": "[H] Visa Prepaid Gift Cards [W] Crypto Hello! I have the cards listed below: * $10 x 50 giftcardmall (74-75%) * $10 x 7 yourrewardcard (74-75%) * $10x10 myprepaidcenter (75%) Please be aware that each card can work differently on every website. All of these are USA, I do not know if they work in other countries. I am looking for USDT or USDC. Thanks",
+      "meta": {
+        "category": "General Feedback",
+        "reason": "The review is informational and neutral, providing details about prepaid cards and a request without expressing strong opinions.",
+        "subreddit": "Cash4Cash",
+        "source_ref": "https://reddit.com/r/Cash4Cash/comments/1m1jmqo/h_visa_prepaid_gift_cards_w_crypto/"
+      }
+    },
+    {
+      "doc_id": "reddit_1lni0rs",
+      "text": "[H] Visa Prepaid Gift Cards [W] Crypto Hello! I have the cards listed below: * $10 x 50 giftcardmall (75%) * $20 x 15 giftcards(.)com (77%) * $20 x 7 virtualrewardcenter (80%) * $25 x 22, $20 x 17, $16, $10x19 myprepaidcenter (80-75%) Please be aware that each card can work differently on every website. All of these are USA, I do not know if they work in other countries. I am looking for USDT or USDC. Thanks",
+      "meta": {
+        "category": "General Feedback",
+        "reason": "The review provides information about prepaid gift cards and a request for crypto without expressing strong positive or negative sentiment.",
+        "subreddit": "Cash4Cash",
+        "source_ref": "https://reddit.com/r/Cash4Cash/comments/1lni0rs/h_visa_prepaid_gift_cards_w_crypto/"
+      }
+    },
+    {
+      "doc_id": "reddit_1lkvxii",
+      "text": "Entered visa gift card into scam site Hey all, I recently found an old Visa card that I forgot to activate and went to activate it. It\u2019s been a while since I\u2019ve used one of these so my dumb self entered it into a scam site before actually entering it on the correct one. (Fake one was my-giftcardmall, I should\u2019ve got it but I activating it while watching TV and like I said, it\u2019s been a while. I knew something was up when the \u201ccheck balance\u201d feature did not work) Once I realized that I went ahead and drained the balance to my own Amazon account. I was a little nervous about being able to be harassed and threatened for using it already but looking at the transaction history there does not appear to be any possible way to identify me as the Amazon URL it shows only leads to the Amazon homepage, nothing identifiable. I know I am being paranoid but I think I should be fine?",
+      "meta": {
+        "category": "Product Issue",
+        "reason": "User accidentally entered card info on a scam site but managed to secure the balance; concern about potential risks remains.",
+        "subreddit": "ScamCenter",
+        "source_ref": "https://reddit.com/r/ScamCenter/comments/1lkvxii/entered_visa_gift_card_into_scam_site/"
+      }
+    },
+    {
+      "doc_id": "reddit_1sxlhqo",
+      "text": "Vertigo cashback offer: Gift card spend exclusion? In the small print for the Vertigo card from [Bank of Melbourne](https://www.bankofmelbourne.com.au/personal/credit-cards/low-rate), [St George](https://www.stgeorge.com.au/personal/credit-cards/low-rate), and [BankSA](https://www.banksa.com.au/personal/credit-cards/low-rate), it mentions the current supermarket and petrol cashback offer excludes: &gt; \u201cGift card or eGift card purchases at participating supermarkets\u201d But from my own past experience and some other old posts, my understanding was that whatever a transaction consisted of doesn't get fed back to the banks. If these were digital gift cards purchased from Everyday Gifting, giftcards.com.au etc, I can understand; different MCC anyway. But for physical cards bought in\u2011store? I'm not sure why they called out that exclusion, and how they might enforce it? Or has there been some change where there's new data sharing between bank and retailer? (I'm still in my 24\u2011month waiting period anyway, so this offer won't matter to me any time soon. Asking mainly because I don't remember seeing something like this before.)",
+      "meta": {
+        "category": "General Feedback",
+        "reason": "The review raises questions about cashback exclusions without expressing strong positive or negative feelings.",
+        "subreddit": "creditcardchurningAus",
+        "source_ref": "https://reddit.com/r/creditcardchurningAus/comments/1sxlhqo/vertigo_cashback_offer_gift_card_spend_exclusion/"
+      }
+    },
+    {
+      "doc_id": "reddit_1rvtewt",
+      "text": "Anyone heard anything about the prepaid card data breach? Blackhawk Network Data Breach Litigation This thing has been going since 2022 I think.",
+      "meta": {
+        "category": "Product Issue",
+        "reason": "The review mentions a data breach, indicating a serious product security issue.",
+        "subreddit": "ClassActionSettlement",
+        "source_ref": "https://reddit.com/r/ClassActionSettlement/comments/1rvtewt/anyone_heard_anything_about_the_prepaid_card_data/"
+      }
+    },
+    {
+      "doc_id": "reddit_1p5xsgx",
+      "text": "Free $50 with a New Rakuten Account Free $50 of Items From Any Store Online After $50 Cashback, New Rakuten Accounts Only. Great way to get free gifts for the holidays and every store out there is having amazing sales right now so perfect time to do this deal. All you do is buy $50 of items now and you get the $50 cash back to your account that you can withdraw by Paypal or check. After the $50 cash back, the items you got are free. Steps: 1. [CLICK HERE.](https://www.rakuten.com/r/KRONOS151?eeid=44753) $50 cashback is for new accounts only. 2. Once you click the link you should see the $50 offer 3. This is a referral link, you must be referred to get the $50 offer 4. Once on Rakuten search for a store you want and click SHOP NOW. If you want gift cards can just type on GIFT CARD or search for GiftCardMall 5. VERY IMPORTANT STEP!! Once you click on the site you want to shop at it will say CASH BACK TERMS on the top of the page and there it will list any Exclusions. Most sites won't have any exclusions, some will have others like you can't buy gift cards, others like Target exclude Groceries and Toys, Macy's has certain brands that don't qualify etc..Make sure you read the exclusions and follow them. If it says for example, Excludes Lego then you go buy $50 of Lego...then you won't get the cash back. So make sure what you are buying isn't excluded, and you are good to go 6. All you need to do is make a $50 or more purchase. I personally always like to err on the side of caution, so if possible, make sure your order is $50.01 or more. Make sure it is $50 BEFORE TAX. You cannot do $46+tax= $450 etc. You must pay $50 at least in items 7. In about 2 days, you should see the $50 Cashback from Rakuten in your account. You can withdraw it after the return period is for the store, so that they make sure you don't return the items 8. ONE LAST STEP. Go to your settings in your Rakuten account and enter your PayPal or mailing address. That way, they will send you the money automatically; you don't even have to withdraw it. Once it is payable, they will send to you on their own.",
+      "meta": {
+        "category": "General Feedback",
+        "reason": "The review is enthusiastic and informative about a cashback offer, showing positive sentiment without mentioning any issues.",
+        "subreddit": "ReferralLinksShare",
+        "source_ref": "https://reddit.com/r/ReferralLinksShare/comments/1p5xsgx/free_50_with_a_new_rakuten_account/"
+      }
+    },
+    {
+      "doc_id": "reddit_1p5xr7c",
+      "text": "Free $50 with Rakuten Sign Up Free $50 of Items From Any Store Online After $50 Cashback, New Rakuten Accounts Only. Great way to get free gifts for the holidays and every store out there is having amazing sales right now so perfect time to do this deal. All you do is buy $50 of items now and you get the $50 cash back to your account that you can withdraw by Paypal or check. After the $50 cash back, the items you got are free. Steps: 1. [CLICK HERE.](https://www.rakuten.com/r/KRONOS151?eeid=44753) $50 cashback is for new accounts only. 2. Once you click the link you should see the $50 offer 3. This is a referral link, you must be referred to get the $50 offer 4. Once on Rakuten search for a store you want and click SHOP NOW. If you want gift cards can just type on GIFT CARD or search for GiftCardMall 5. VERY IMPORTANT STEP!! Once you click on the site you want to shop at it will say CASH BACK TERMS on the top of the page and there it will list any Exclusions. Most sites won't have any exclusions, some will have others like you can't buy gift cards, others like Target exclude Groceries and Toys, Macy's has certain brands that don't qualify etc..Make sure you read the exclusions and follow them. If it says for example, Excludes Lego then you go buy $50 of Lego...then you won't get the cash back. So make sure what you are buying isn't excluded, and you are good to go 6. All you need to do is make a $50 or more purchase. I personally always like to err on the side of caution, so if possible, make sure your order is $50.01 or more. Make sure it is $50 BEFORE TAX. You cannot do $46+tax= $450 etc. You must pay $50 at least in items 7. In about 2 days, you should see the $50 Cashback from Rakuten in your account. You can withdraw it after the return period is for the store, so that they make sure you don't return the items 8. ONE LAST STEP. Go to your settings in your Rakuten account and enter your PayPal or mailing address. That way, they will send you the money automatically; you don't even have to withdraw it. Once it is payable, they will send to you on their own.",
+      "meta": {
+        "category": "General Feedback",
+        "reason": "The review is enthusiastic and informative about the cashback offer, with no complaints or issues mentioned.",
+        "subreddit": "ReferalCodes",
+        "source_ref": "https://reddit.com/r/ReferalCodes/comments/1p5xr7c/free_50_with_rakuten_sign_up/"
+      }
+    },
+    {
+      "doc_id": "reddit_1p5xqvo",
+      "text": "Free $50 with Rakuten Free $50 of Items From Any Store Online After $50 Cashback, New Rakuten Accounts Only. Great way to get free gifts for the holidays and every store out there is having amazing sales right now so perfect time to do this deal. All you do is buy $50 of items now and you get the $50 cash back to your account that you can withdraw by Paypal or check. After the $50 cash back, the items you got are free. Steps: 1. [CLICK HERE.](https://www.rakuten.com/r/KRONOS151?eeid=44753) $50 cashback is for new accounts only. 2. Once you click the link you should see the $50 offer 3. This is a referral link, you must be referred to get the $50 offer 4. Once on Rakuten search for a store you want and click SHOP NOW. If you want gift cards can just type on GIFT CARD or search for GiftCardMall 5. VERY IMPORTANT STEP!! Once you click on the site you want to shop at it will say CASH BACK TERMS on the top of the page and there it will list any Exclusions. Most sites won't have any exclusions, some will have others like you can't buy gift cards, others like Target exclude Groceries and Toys, Macy's has certain brands that don't qualify etc..Make sure you read the exclusions and follow them. If it says for example, Excludes Lego then you go buy $50 of Lego...then you won't get the cash back. So make sure what you are buying isn't excluded, and you are good to go 6. All you need to do is make a $50 or more purchase. I personally always like to err on the side of caution, so if possible, make sure your order is $50.01 or more. Make sure it is $50 BEFORE TAX. You cannot do $46+tax= $450 etc. You must pay $50 at least in items 7. In about 2 days, you should see the $50 Cashback from Rakuten in your account. You can withdraw it after the return period is for the store, so that they make sure you don't return the items 8. ONE LAST STEP. Go to your settings in your Rakuten account and enter your PayPal or mailing address. That way, they will send you the money automatically; you don't even have to withdraw it. Once it is payable, they will send to you on their own.",
+      "meta": {
+        "category": "General Feedback",
+        "reason": "The review is enthusiastic and informative about the cashback offer, highlighting benefits and clear instructions without complaints.",
+        "subreddit": "ReferralNews",
+        "source_ref": "https://reddit.com/r/ReferralNews/comments/1p5xqvo/free_50_with_rakuten/"
+      }
+    },
+    {
+      "doc_id": "reddit_1p5xq79",
+      "text": "Free $50 with Rakuten Sign Up Free $50 of Items From Any Store Online After $50 Cashback, New Rakuten Accounts Only. Great way to get free gifts for the holidays and every store out there is having amazing sales right now so perfect time to do this deal. All you do is buy $50 of items now and you get the $50 cash back to your account that you can withdraw by Paypal or check. After the $50 cash back, the items you got are free. Steps: 1. [CLICK HERE.](https://www.rakuten.com/r/KRONOS151?eeid=44753) $50 cashback is for new accounts only. 2. Once you click the link you should see the $50 offer 3. This is a referral link, you must be referred to get the $50 offer 4. Once on Rakuten search for a store you want and click SHOP NOW. If you want gift cards can just type on GIFT CARD or search for GiftCardMall 5. VERY IMPORTANT STEP!! Once you click on the site you want to shop at it will say CASH BACK TERMS on the top of the page and there it will list any Exclusions. Most sites won't have any exclusions, some will have others like you can't buy gift cards, others like Target exclude Groceries and Toys, Macy's has certain brands that don't qualify etc..Make sure you read the exclusions and follow them. If it says for example, Excludes Lego then you go buy $50 of Lego...then you won't get the cash back. So make sure what you are buying isn't excluded, and you are good to go 6. All you need to do is make a $50 or more purchase. I personally always like to err on the side of caution, so if possible, make sure your order is $50.01 or more. Make sure it is $50 BEFORE TAX. You cannot do $46+tax= $450 etc. You must pay $50 at least in items 7. In about 2 days, you should see the $50 Cashback from Rakuten in your account. You can withdraw it after the return period is for the store, so that they make sure you don't return the items 8. ONE LAST STEP. Go to your settings in your Rakuten account and enter your PayPal or mailing address. That way, they will send you the money automatically; you don't even have to withdraw it. Once it is payable, they will send to you on their own.",
+      "meta": {
+        "category": "General Feedback",
+        "reason": "The review is a detailed positive explanation of a cashback offer, highlighting benefits and steps without complaints.",
+        "subreddit": "UseMyReferral",
+        "source_ref": "https://reddit.com/r/UseMyReferral/comments/1p5xq79/free_50_with_rakuten_sign_up/"
+      }
+    },
+    {
+      "doc_id": "reddit_1p5xpxa",
+      "text": "Free $50 with Rakuten Sign Up Free $50 of Items From Any Store Online After $50 Cashback, New Rakuten Accounts Only. Great way to get free gifts for the holidays and every store out there is having amazing sales right now so perfect time to do this deal. All you do is buy $50 of items now and you get the $50 cash back to your account that you can withdraw by Paypal or check. After the $50 cash back, the items you got are free. Steps: 1. [CLICK HERE.](https://www.rakuten.com/r/KRONOS151?eeid=44753) $50 cashback is for new accounts only. 2. Once you click the link you should see the $50 offer 3. This is a referral link, you must be referred to get the $50 offer 4. Once on Rakuten search for a store you want and click SHOP NOW. If you want gift cards can just type on GIFT CARD or search for GiftCardMall 5. VERY IMPORTANT STEP!! Once you click on the site you want to shop at it will say CASH BACK TERMS on the top of the page and there it will list any Exclusions. Most sites won't have any exclusions, some will have others like you can't buy gift cards, others like Target exclude Groceries and Toys, Macy's has certain brands that don't qualify etc..Make sure you read the exclusions and follow them. If it says for example, Excludes Lego then you go buy $50 of Lego...then you won't get the cash back. So make sure what you are buying isn't excluded, and you are good to go 6. All you need to do is make a $50 or more purchase. I personally always like to err on the side of caution, so if possible, make sure your order is $50.01 or more. Make sure it is $50 BEFORE TAX. You cannot do $46+tax= $450 etc. You must pay $50 at least in items 7. In about 2 days, you should see the $50 Cashback from Rakuten in your account. You can withdraw it after the return period is for the store, so that they make sure you don't return the items 8. ONE LAST STEP. Go to your settings in your Rakuten account and enter your PayPal or mailing address. That way, they will send you the money automatically; you don't even have to withdraw it. Once it is payable, they will send to you on their own.",
+      "meta": {
+        "category": "General Feedback",
+        "reason": "The review is informative and highlights a positive cashback offer with clear instructions.",
+        "subreddit": "ReferralLink",
+        "source_ref": "https://reddit.com/r/ReferralLink/comments/1p5xpxa/free_50_with_rakuten_sign_up/"
+      }
+    },
+    {
+      "doc_id": "reddit_1p5xpn9",
+      "text": "Free $50 with Rakuten Sign Up Free $50 of Items From Any Store Online After $50 Cashback, New Rakuten Accounts Only. Great way to get free gifts for the holidays and every store out there is having amazing sales right now so perfect time to do this deal. All you do is buy $50 of items now and you get the $50 cash back to your account that you can withdraw by Paypal or check. After the $50 cash back, the items you got are free. Steps: 1. [CLICK HERE.](https://www.rakuten.com/r/KRONOS151?eeid=44753) $50 cashback is for new accounts only. 2. Once you click the link you should see the $50 offer 3. This is a referral link, you must be referred to get the $50 offer 4. Once on Rakuten search for a store you want and click SHOP NOW. If you want gift cards can just type on GIFT CARD or search for GiftCardMall 5. VERY IMPORTANT STEP!! Once you click on the site you want to shop at it will say CASH BACK TERMS on the top of the page and there it will list any Exclusions. Most sites won't have any exclusions, some will have others like you can't buy gift cards, others like Target exclude Groceries and Toys, Macy's has certain brands that don't qualify etc..Make sure you read the exclusions and follow them. If it says for example, Excludes Lego then you go buy $50 of Lego...then you won't get the cash back. So make sure what you are buying isn't excluded, and you are good to go 6. All you need to do is make a $50 or more purchase. I personally always like to err on the side of caution, so if possible, make sure your order is $50.01 or more. Make sure it is $50 BEFORE TAX. You cannot do $46+tax= $450 etc. You must pay $50 at least in items 7. In about 2 days, you should see the $50 Cashback from Rakuten in your account. You can withdraw it after the return period is for the store, so that they make sure you don't return the items 8. ONE LAST STEP. Go to your settings in your Rakuten account and enter your PayPal or mailing address. That way, they will send you the money automatically; you don't even have to withdraw it. Once it is payable, they will send to you on their own.",
+      "meta": {
+        "category": "General Feedback",
+        "reason": "The review is enthusiastic and informative about the cashback offer, with no complaints or issues mentioned.",
+        "subreddit": "getpaid",
+        "source_ref": "https://reddit.com/r/getpaid/comments/1p5xpn9/free_50_with_rakuten_sign_up/"
+      }
+    },
+    {
+      "doc_id": "reddit_1p5xos6",
+      "text": "Free $50 with Rakuten Free $50 of Items From Any Store Online After $50 Cashback, New Rakuten Accounts Only. Great way to get free gifts for the holidays and every store out there is having amazing sales right now so perfect time to do this deal. All you do is buy $50 of items now and you get the $50 cash back to your account that you can withdraw by Paypal or check. After the $50 cash back, the items you got are free. Steps: 1. [CLICK HERE.](https://www.rakuten.com/r/KRONOS151?eeid=44753) $50 cashback is for new accounts only. 2. Once you click the link you should see the $50 offer 3. This is a referral link, you must be referred to get the $50 offer 4. Once on Rakuten search for a store you want and click SHOP NOW. If you want gift cards can just type on GIFT CARD or search for GiftCardMall 5. VERY IMPORTANT STEP!! Once you click on the site you want to shop at it will say CASH BACK TERMS on the top of the page and there it will list any Exclusions. Most sites won't have any exclusions, some will have others like you can't buy gift cards, others like Target exclude Groceries and Toys, Macy's has certain brands that don't qualify etc..Make sure you read the exclusions and follow them. If it says for example, Excludes Lego then you go buy $50 of Lego...then you won't get the cash back. So make sure what you are buying isn't excluded, and you are good to go 6. All you need to do is make a $50 or more purchase. I personally always like to err on the side of caution, so if possible, make sure your order is $50.01 or more. Make sure it is $50 BEFORE TAX. You cannot do $46+tax= $450 etc. You must pay $50 at least in items 7. In about 2 days, you should see the $50 Cashback from Rakuten in your account. You can withdraw it after the return period is for the store, so that they make sure you don't return the items 8. ONE LAST STEP. Go to your settings in your Rakuten account and enter your PayPal or mailing address. That way, they will send you the money automatically; you don't even have to withdraw it. Once it is payable, they will send to you on their own.",
+      "meta": {
+        "category": "General Feedback",
+        "reason": "The review is enthusiastic and informative about the cashback offer, with no complaints or issues mentioned.",
+        "subreddit": "ReferralLinksNation",
+        "source_ref": "https://reddit.com/r/ReferralLinksNation/comments/1p5xos6/free_50_with_rakuten/"
+      }
+    },
+    {
+      "doc_id": "reddit_1p5xogu",
+      "text": "Free $50 with Rakuten Sign up Free $50 of Items From Any Store Online After $50 Cashback, New Rakuten Accounts Only. Great way to get free gifts for the holidays and every store out there is having amazing sales right now so perfect time to do this deal. All you do is buy $50 of items now and you get the $50 cash back to your account that you can withdraw by Paypal or check. After the $50 cash back, the items you got are free. Steps: 1. [CLICK HERE.](https://www.rakuten.com/r/KRONOS151?eeid=44753) $50 cashback is for new accounts only. 2. Once you click the link you should see the $50 offer 3. This is a referral link, you must be referred to get the $50 offer 4. Once on Rakuten search for a store you want and click SHOP NOW. If you want gift cards can just type on GIFT CARD or search for GiftCardMall 5. VERY IMPORTANT STEP!! Once you click on the site you want to shop at it will say CASH BACK TERMS on the top of the page and there it will list any Exclusions. Most sites won't have any exclusions, some will have others like you can't buy gift cards, others like Target exclude Groceries and Toys, Macy's has certain brands that don't qualify etc..Make sure you read the exclusions and follow them. If it says for example, Excludes Lego then you go buy $50 of Lego...then you won't get the cash back. So make sure what you are buying isn't excluded, and you are good to go 6. All you need to do is make a $50 or more purchase. I personally always like to err on the side of caution, so if possible, make sure your order is $50.01 or more. Make sure it is $50 BEFORE TAX. You cannot do $46+tax= $450 etc. You must pay $50 at least in items 7. In about 2 days, you should see the $50 Cashback from Rakuten in your account. You can withdraw it after the return period is for the store, so that they make sure you don't return the items 8. ONE LAST STEP. Go to your settings in your Rakuten account and enter your PayPal or mailing address. That way, they will send you the money automatically; you don't even have to withdraw it. Once it is payable, they will send to you on their own.",
+      "meta": {
+        "category": "General Feedback",
+        "reason": "The review is enthusiastic and informative about the cashback offer, with no complaints or issues mentioned.",
+        "subreddit": "ReferralNotReferal",
+        "source_ref": "https://reddit.com/r/ReferralNotReferal/comments/1p5xogu/free_50_with_rakuten_sign_up/"
+      }
+    },
+    {
+      "doc_id": "reddit_1p5xmq5",
+      "text": "Free $50 from Rakuten Free $50 of Items From Any Store Online After $50 Cashback, New Rakuten Accounts Only. Great way to get free gifts for the holidays and every store out there is having amazing sales right now so perfect time to do this deal. All you do is buy $50 of items now and you get the $50 cash back to your account that you can withdraw by Paypal or check. After the $50 cash back, the items you got are free. Steps: 1. [CLICK HERE.](https://www.rakuten.com/r/KRONOS151?eeid=44753) $50 cashback is for new accounts only. 2. Once you click the link you should see the $50 offer 3. This is a referral link, you must be referred to get the $50 offer 4. Once on Rakuten search for a store you want and click SHOP NOW. If you want gift cards can just type on GIFT CARD or search for GiftCardMall 5. VERY IMPORTANT STEP!! Once you click on the site you want to shop at it will say CASH BACK TERMS on the top of the page and there it will list any Exclusions. Most sites won't have any exclusions, some will have others like you can't buy gift cards, others like Target exclude Groceries and Toys, Macy's has certain brands that don't qualify etc..Make sure you read the exclusions and follow them. If it says for example, Excludes Lego then you go buy $50 of Lego...then you won't get the cash back. So make sure what you are buying isn't excluded, and you are good to go 6. All you need to do is make a $50 or more purchase. I personally always like to err on the side of caution, so if possible, make sure your order is $50.01 or more. Make sure it is $50 BEFORE TAX. You cannot do $46+tax= $450 etc. You must pay $50 at least in items 7. In about 2 days, you should see the $50 Cashback from Rakuten in your account. You can withdraw it after the return period is for the store, so that they make sure you don't return the items 8. ONE LAST STEP. Go to your settings in your Rakuten account and enter your PayPal or mailing address. That way, they will send you the money automatically; you don't even have to withdraw it. Once it is payable, they will send to you on their own.",
+      "meta": {
+        "category": "General Feedback",
+        "reason": "The review is enthusiastic and informative about a cashback offer, showing satisfaction and no issues.",
+        "subreddit": "refferalsfordummies",
+        "source_ref": "https://reddit.com/r/refferalsfordummies/comments/1p5xmq5/free_50_from_rakuten/"
+      }
+    },
+    {
+      "doc_id": "reddit_1nplv8v",
+      "text": "Gift Card Issues with MyGift Card Mall I was having issues logging onto the [mygift.giftcardmall.com](http://mygift.giftcardmall.com) website. I needed to print out my transactions for a dispute with Temu who stole about $40. After turning off my ad-blockers, I finally got through. When I did, the transactions that were listed a week ago are no longer there. I won't be buying gift cards from this vender again.",
+      "meta": {
+        "category": "Product Issue",
+        "reason": "User experienced login issues and missing transaction data, leading to distrust and dissatisfaction.",
+        "subreddit": "CreditCards",
+        "source_ref": "https://reddit.com/r/CreditCards/comments/1nplv8v/gift_card_issues_with_mygift_card_mall/"
+      }
+    },
+    {
+      "doc_id": "reddit_1n453nn",
+      "text": "[H] Paypal/Cashapp/USDC [W] Prepaid MPC or Giftcardmall $60+ USD (Not looking for Vanilla) Looking for a single card of $60 or more. Comment before sending a message.",
+      "meta": {
+        "category": "General Feedback",
+        "reason": "The review is a straightforward request without positive or negative sentiment.",
+        "subreddit": "Cash4Cash",
+        "source_ref": "https://reddit.com/r/Cash4Cash/comments/1n453nn/h_paypalcashappusdc_w_prepaid_mpc_or_giftcardmall/"
+      }
+    },
+    {
+      "doc_id": "reddit_1n328a7",
+      "text": "[H] Paypal/Cashapp/USDC [W] Prepaid MPC or Giftcardmall $60+ USD Looking for a single card of $60 or more. Comment before sending a message.",
+      "meta": {
+        "category": "General Feedback",
+        "reason": "The review is a neutral request for a specific product without expressing satisfaction or dissatisfaction.",
+        "subreddit": "Cash4Cash",
+        "source_ref": "https://reddit.com/r/Cash4Cash/comments/1n328a7/h_paypalcashappusdc_w_prepaid_mpc_or_giftcardmall/"
+      }
+    },
+    {
+      "doc_id": "reddit_1mzwlww",
+      "text": "[H] Paypal/Cashapp/USDC [W] Prepaid MPC or Giftcardmall $60+ USD Looking for a single card of $60 or more. Comment before sending a message.",
+      "meta": {
+        "category": "Order Issue",
+        "reason": "The review is a request for a specific product exchange, indicating a neutral stance without explicit satisfaction or dissatisfaction.",
+        "subreddit": "Cash4Cash",
+        "source_ref": "https://reddit.com/r/Cash4Cash/comments/1mzwlww/h_paypalcashappusdc_w_prepaid_mpc_or_giftcardmall/"
+      }
+    },
+    {
+      "doc_id": "reddit_1lqvq45",
+      "text": "[H] $40 Prepaid Visa (Unregistered) [W] 90% Crypto I'm looking to sell my prepaid visa that is unregistered and you can register it to you via the website. The visa is from mygift.giftcardmall",
+      "meta": {
+        "category": "General Feedback",
+        "reason": "The review is informational and does not express positive or negative sentiment.",
+        "subreddit": "GCTrading",
+        "source_ref": "https://reddit.com/r/GCTrading/comments/1lqvq45/h_40_prepaid_visa_unregistered_w_90_crypto/"
+      }
+    },
+    {
+      "doc_id": "reddit_1syfns0",
+      "text": "lululemon - Can no longer buy physical gift cards online? Looks like they are doing everything they can to restrict people from using the $75 quarterly credits to stack gift cards. You can no longer buy physical cards online and must go to a location. For the e-gift cards you now have to purchase through a 3rd party website CashStar so the credit probably would not occur since it is not a direct purchase. Has anyone purchased from the 3rd party site and received the credit?",
+      "meta": {
+        "category": "Order Issue",
+        "reason": "Customer is frustrated about restrictions on buying gift cards and potential loss of credit benefits.",
+        "subreddit": "amex",
+        "source_ref": "https://reddit.com/r/amex/comments/1syfns0/lululemon_can_no_longer_buy_physical_gift_cards/"
+      }
+    },
+    {
+      "doc_id": "reddit_1sy1t41",
+      "text": "[H] 70-85% All payment methods [W] Prepaid visa/MC $25-100+ up to $1000 taking odd denoms also. Lower cards have a lower rate. No Blackhawk network/Tremendous accepted. chat before pm or blocked",
+      "meta": {
+        "category": "Order Issue",
+        "reason": "The review discusses payment methods and restrictions without expressing clear positive or negative sentiment.",
+        "subreddit": "Cash4Cash",
+        "source_ref": "https://reddit.com/r/Cash4Cash/comments/1sy1t41/h_7085_all_payment_methods_w_prepaid_visamc_25100/"
+      }
+    },
+    {
+      "doc_id": "reddit_1mmyhwb",
+      "text": "Visa gift card to buy a different Visa gift card to extend expiration date OR get it out in cash Wondering if anyone has used a Visa gift card to buy a different Visa gift card to extend the expiration date or has been able to get out cash rather than use the card. For example, you cannot use a gift card on Amazon to buy another gift card for someone else, can't move the funds that way. Context: My mother gave me 7 $100 Visa debit gift cards for food. Whenever I try to use my Visa debit gift card at the store (I try to only use it at places that don't take a regular visa like Asian grocery stores and restaurants I go to that only accept debit or cash) they say it is not valid. The company (formerly giftcardmall) keeps deactivating it if I haven't used it in a certain period of time and the phone operators can't tell me what that period is but will reactivate it: so annoying to have to call them before trying to use it, probably their way of getting people not to use it so that they get to keep the money. Most recently, the company has changed, so not only did they deactivate the card, but they said that my card is no longer valid (got error messages online and had to call customer service). Representative said that if I want (as if I wouldn't) they can reissue me a new card! I have to submit proof of ownership for each card, including pictures of both sides of each card. So I would like to move my funds out of this card company and into a different one OR is there a way to use it to get cash from an ATM or at the cashier at a store?",
+      "meta": {
+        "category": "Customer Support",
+        "reason": "Frustration with card deactivation, unclear policies, and burdensome customer service requirements.",
+        "subreddit": "povertyfinance",
+        "source_ref": "https://reddit.com/r/povertyfinance/comments/1mmyhwb/visa_gift_card_to_buy_a_different_visa_gift_card/"
+      }
+    },
+    {
+      "doc_id": "reddit_1n2pz4z",
+      "text": "[H] 100$ Visa Giftcard [W] 75% Crypto From GiftCardMall",
+      "meta": {
+        "category": "General Feedback",
+        "reason": "The review is a straightforward trade offer without any expressed opinion or issue.",
+        "subreddit": "Cash4Cash",
+        "source_ref": "https://reddit.com/r/Cash4Cash/comments/1n2pz4z/h_100_visa_giftcard_w_75_crypto/"
+      }
+    },
+    {
+      "doc_id": "reddit_1poat06",
+      "text": "[H] $150 visa gc [W] 80% Crypto GC from giftcardmall Single card Must know how to use GC Comment here before Pm.",
+      "meta": {
+        "category": "General Feedback",
+        "reason": "The review is informational and does not express clear positive or negative sentiment.",
+        "subreddit": "Cash4Cash",
+        "source_ref": "https://reddit.com/r/Cash4Cash/comments/1poat06/h_150_visa_gc_w_80_crypto/"
+      }
+    },
+    {
+      "doc_id": "reddit_1nfa80p",
+      "text": "Visa/Amex(unregistered ) Got them for my birthday,wanna get rid of them. Visa, Mastercard, Amex) GiftCardMall Apple Pay addable \ud83d\udcf1 %55 rates on all orders \ud83d\udcb2 \u2705 Fresh &amp; unregistered &amp; reliable transactions I follow the rules and Guidelines \ud83d\ude0a",
+      "meta": {
+        "category": "Product Issue",
+        "reason": "The review mentions reliable transactions and following guidelines, indicating a generally positive experience with minor concerns.",
+        "subreddit": "u_Fancy-Confidence-638",
+        "source_ref": "https://reddit.com/r/u_Fancy-Confidence-638/comments/1nfa80p/visaamexunregistered/"
+      }
+    },
+    {
+      "doc_id": "reddit_1naey8v",
+      "text": "[H] Giftcardmall Visa/MC $25-100 [W] 65-70% Crypto/Zelle/Venmo Going first",
+      "meta": {
+        "category": "General Feedback",
+        "reason": "The review is a straightforward trade offer without expressing positive or negative sentiment.",
+        "subreddit": "Cash4Cash",
+        "source_ref": "https://reddit.com/r/Cash4Cash/comments/1naey8v/h_giftcardmall_visamc_25100_w_6570/"
+      }
+    },
+    {
+      "doc_id": "reddit_1mywkj3",
+      "text": "[H] $50 Giftcardmall x5(unregistered) [W] 70% Zelle|Crypto Going first",
+      "meta": {
+        "category": "Order Issue",
+        "reason": "The review is a trade offer with no clear sentiment or product feedback.",
+        "subreddit": "Cash4Cash",
+        "source_ref": "https://reddit.com/r/Cash4Cash/comments/1mywkj3/h_50_giftcardmall_x5unregistered_w_70_zellecrypto/"
+      }
+    },
+    {
+      "doc_id": "reddit_1ly3yhp",
+      "text": "[H] $150 Visa Gc [W] 80% crypto 4358 Physical Visa Gc from giftcardmall Comment here before PM Going first for confirmed/ experienced traders",
+      "meta": {
+        "category": "Order Issue",
+        "reason": "The review discusses a trade offer and conditions without expressing clear positive or negative sentiment.",
+        "subreddit": "Cash4Cash",
+        "source_ref": "https://reddit.com/r/Cash4Cash/comments/1ly3yhp/h_150_visa_gc_w_80_crypto/"
+      }
+    },
+    {
+      "doc_id": "reddit_1lkp212",
+      "text": "GiftCardMall MyGift: A Complete Guide",
+      "meta": {
+        "category": "General Feedback",
+        "reason": "The review is a title without any opinion or detailed feedback.",
+        "subreddit": "TaxUniFinance",
+        "source_ref": "https://reddit.com/r/TaxUniFinance/comments/1lkp212/giftcardmall_mygift_a_complete_guide/"
+      }
+    }
+  ],
+  "queries": [
+    {
+      "query_id": "q_191da5c7adb7",
+      "text": "free 50 rakuten free 50 items any store online after",
+      "relevant_doc_ids": [
+        "reddit_1p5xmq5",
+        "reddit_1p5xsgx"
+      ],
+      "hard_negative_doc_ids": [
+        "reddit_1p5xqvo",
+        "reddit_1p5xos6",
+        "reddit_1p5xr7c",
+        "reddit_1p5xq79",
+        "reddit_1p5xpxa",
+        "reddit_1p5xpn9",
+        "reddit_1p5xogu",
+        "reddit_1mmyhwb",
+        "reddit_1sxlhqo",
+        "reddit_1pwxc6g",
+        "reddit_1mj436s",
+        "reddit_1lkvxii"
+      ],
+      "tags": [
+        "lexical"
+      ],
+      "split": "train",
+      "group_key": "general feedback|the review is enthusiastic and informative about a"
+    },
+    {
+      "query_id": "q_94dc4619dd07",
+      "text": "General Feedback issue reported by customers: The review is enthusiastic and informative about a cashback offer, showing satisfaction and no issues.",
+      "relevant_doc_ids": [
+        "reddit_1p5xmq5",
+        "reddit_1p5xsgx"
+      ],
+      "hard_negative_doc_ids": [
+        "reddit_1p5xqvo",
+        "reddit_1p5xos6",
+        "reddit_1p5xr7c",
+        "reddit_1p5xq79",
+        "reddit_1p5xpxa",
+        "reddit_1p5xpn9",
+        "reddit_1p5xogu",
+        "reddit_1mmyhwb",
+        "reddit_1sxlhqo",
+        "reddit_1pwxc6g",
+        "reddit_1mj436s",
+        "reddit_1lkvxii"
+      ],
+      "tags": [
+        "paraphrase"
+      ],
+      "split": "train",
+      "group_key": "general feedback|the review is enthusiastic and informative about a"
+    },
+    {
+      "query_id": "q_79df3cdea483",
+      "text": "free 50 rakuten free 50 items any store online after",
+      "relevant_doc_ids": [
+        "reddit_1p5xmq5",
+        "reddit_1p5xsgx"
+      ],
+      "hard_negative_doc_ids": [
+        "reddit_1p5xqvo",
+        "reddit_1p5xos6",
+        "reddit_1p5xr7c",
+        "reddit_1p5xq79",
+        "reddit_1p5xpxa",
+        "reddit_1p5xpn9",
+        "reddit_1p5xogu",
+        "reddit_1mmyhwb",
+        "reddit_1sxlhqo",
+        "reddit_1pwxc6g",
+        "reddit_1mj436s",
+        "reddit_1lkvxii"
+      ],
+      "tags": [
+        "noisy"
+      ],
+      "split": "train",
+      "group_key": "general feedback|the review is enthusiastic and informative about a"
+    },
+    {
+      "query_id": "q_33c1bded628e",
+      "text": "customer issue trend: the review is enthusiastic and informative about a cashback offer, showing satisfaction and no issues.",
+      "relevant_doc_ids": [
+        "reddit_1p5xmq5",
+        "reddit_1p5xsgx"
+      ],
+      "hard_negative_doc_ids": [
+        "reddit_1p5xqvo",
+        "reddit_1p5xos6",
+        "reddit_1p5xr7c",
+        "reddit_1p5xq79",
+        "reddit_1p5xpxa",
+        "reddit_1p5xpn9",
+        "reddit_1p5xogu",
+        "reddit_1mmyhwb",
+        "reddit_1sxlhqo",
+        "reddit_1pwxc6g",
+        "reddit_1mj436s",
+        "reddit_1lkvxii"
+      ],
+      "tags": [
+        "intent"
+      ],
+      "split": "test",
+      "group_key": "general feedback|the review is enthusiastic and informative about a"
+    },
+    {
+      "query_id": "q_43ceb4beef1e",
+      "text": "gc bhn free 50 rakuten free 50 items any store online after",
+      "relevant_doc_ids": [
+        "reddit_1p5xmq5",
+        "reddit_1p5xsgx"
+      ],
+      "hard_negative_doc_ids": [
+        "reddit_1p5xqvo",
+        "reddit_1p5xos6",
+        "reddit_1p5xr7c",
+        "reddit_1p5xq79",
+        "reddit_1p5xpxa",
+        "reddit_1p5xpn9",
+        "reddit_1p5xogu",
+        "reddit_1mmyhwb",
+        "reddit_1sxlhqo",
+        "reddit_1pwxc6g",
+        "reddit_1mj436s",
+        "reddit_1lkvxii"
+      ],
+      "tags": [
+        "acronym",
+        "acronym"
+      ],
+      "split": "dev",
+      "group_key": "general feedback|the review is enthusiastic and informative about a"
+    },
+    {
+      "query_id": "q_f7db8fa31f68",
+      "text": "free 50 new rakuten account free 50 items any store",
+      "relevant_doc_ids": [
+        "reddit_1p5xsgx",
+        "reddit_1p5xmq5"
+      ],
+      "hard_negative_doc_ids": [
+        "reddit_1p5xqvo",
+        "reddit_1p5xos6",
+        "reddit_1p5xr7c",
+        "reddit_1p5xq79",
+        "reddit_1p5xpxa",
+        "reddit_1p5xpn9",
+        "reddit_1p5xogu",
+        "reddit_1mmyhwb",
+        "reddit_1sxlhqo",
+        "reddit_1pwxc6g",
+        "reddit_1mj436s",
+        "reddit_1lkvxii"
+      ],
+      "tags": [
+        "lexical"
+      ],
+      "split": "test",
+      "group_key": "general feedback|the review is enthusiastic and informative about a"
+    },
+    {
+      "query_id": "q_b362157d6a4a",
+      "text": "General Feedback issue reported by customers: The review is enthusiastic and informative about a cashback offer, showing positive sentiment without mentioning any issues.",
+      "relevant_doc_ids": [
+        "reddit_1p5xsgx",
+        "reddit_1p5xmq5"
+      ],
+      "hard_negative_doc_ids": [
+        "reddit_1p5xqvo",
+        "reddit_1p5xos6",
+        "reddit_1p5xr7c",
+        "reddit_1p5xq79",
+        "reddit_1p5xpxa",
+        "reddit_1p5xpn9",
+        "reddit_1p5xogu",
+        "reddit_1mmyhwb",
+        "reddit_1sxlhqo",
+        "reddit_1pwxc6g",
+        "reddit_1mj436s",
+        "reddit_1lkvxii"
+      ],
+      "tags": [
+        "paraphrase"
+      ],
+      "split": "dev",
+      "group_key": "general feedback|the review is enthusiastic and informative about a"
+    },
+    {
+      "query_id": "q_4f1619c4c65b",
+      "text": "free 50 new rakuten account free 50 items any store",
+      "relevant_doc_ids": [
+        "reddit_1p5xsgx",
+        "reddit_1p5xmq5"
+      ],
+      "hard_negative_doc_ids": [
+        "reddit_1p5xqvo",
+        "reddit_1p5xos6",
+        "reddit_1p5xr7c",
+        "reddit_1p5xq79",
+        "reddit_1p5xpxa",
+        "reddit_1p5xpn9",
+        "reddit_1p5xogu",
+        "reddit_1mmyhwb",
+        "reddit_1sxlhqo",
+        "reddit_1pwxc6g",
+        "reddit_1mj436s",
+        "reddit_1lkvxii"
+      ],
+      "tags": [
+        "noisy"
+      ],
+      "split": "train",
+      "group_key": "general feedback|the review is enthusiastic and informative about a"
+    },
+    {
+      "query_id": "q_349c0b40f5b4",
+      "text": "customer issue trend: the review is enthusiastic and informative about a cashback offer, showing positive sentiment without mentioning any issues.",
+      "relevant_doc_ids": [
+        "reddit_1p5xsgx",
+        "reddit_1p5xmq5"
+      ],
+      "hard_negative_doc_ids": [
+        "reddit_1p5xqvo",
+        "reddit_1p5xos6",
+        "reddit_1p5xr7c",
+        "reddit_1p5xq79",
+        "reddit_1p5xpxa",
+        "reddit_1p5xpn9",
+        "reddit_1p5xogu",
+        "reddit_1mmyhwb",
+        "reddit_1sxlhqo",
+        "reddit_1pwxc6g",
+        "reddit_1mj436s",
+        "reddit_1lkvxii"
+      ],
+      "tags": [
+        "intent"
+      ],
+      "split": "test",
+      "group_key": "general feedback|the review is enthusiastic and informative about a"
+    },
+    {
+      "query_id": "q_4d4e6acdbebc",
+      "text": "gc bhn free 50 new rakuten account free 50 items any store",
+      "relevant_doc_ids": [
+        "reddit_1p5xsgx",
+        "reddit_1p5xmq5"
+      ],
+      "hard_negative_doc_ids": [
+        "reddit_1p5xqvo",
+        "reddit_1p5xos6",
+        "reddit_1p5xr7c",
+        "reddit_1p5xq79",
+        "reddit_1p5xpxa",
+        "reddit_1p5xpn9",
+        "reddit_1p5xogu",
+        "reddit_1mmyhwb",
+        "reddit_1sxlhqo",
+        "reddit_1pwxc6g",
+        "reddit_1mj436s",
+        "reddit_1lkvxii"
+      ],
+      "tags": [
+        "acronym",
+        "acronym"
+      ],
+      "split": "test",
+      "group_key": "general feedback|the review is enthusiastic and informative about a"
+    },
+    {
+      "query_id": "q_675a79732c3f",
+      "text": "free 50 rakuten sign up free 50 items any store",
+      "relevant_doc_ids": [
+        "reddit_1p5xogu",
+        "reddit_1p5xr7c",
+        "reddit_1p5xpn9"
+      ],
+      "hard_negative_doc_ids": [
+        "reddit_1p5xq79",
+        "reddit_1p5xpxa",
+        "reddit_1p5xsgx",
+        "reddit_1p5xqvo",
+        "reddit_1p5xos6",
+        "reddit_1p5xmq5",
+        "reddit_1mmyhwb",
+        "reddit_1sxlhqo",
+        "reddit_1pwxc6g",
+        "reddit_1mj436s",
+        "reddit_1lkvxii",
+        "reddit_1p5ykra"
+      ],
+      "tags": [
+        "lexical"
+      ],
+      "split": "dev",
+      "group_key": "general feedback|the review is enthusiastic and informative about the"
+    },
+    {
+      "query_id": "q_f034269224a2",
+      "text": "General Feedback issue reported by customers: The review is enthusiastic and informative about the cashback offer, with no complaints or issues mentioned.",
+      "relevant_doc_ids": [
+        "reddit_1p5xogu",
+        "reddit_1p5xr7c",
+        "reddit_1p5xpn9"
+      ],
+      "hard_negative_doc_ids": [
+        "reddit_1p5xq79",
+        "reddit_1p5xpxa",
+        "reddit_1p5xsgx",
+        "reddit_1p5xqvo",
+        "reddit_1p5xos6",
+        "reddit_1p5xmq5",
+        "reddit_1mmyhwb",
+        "reddit_1sxlhqo",
+        "reddit_1pwxc6g",
+        "reddit_1mj436s",
+        "reddit_1lkvxii",
+        "reddit_1p5ykra"
+      ],
+      "tags": [
+        "paraphrase"
+      ],
+      "split": "train",
+      "group_key": "general feedback|the review is enthusiastic and informative about the"
+    },
+    {
+      "query_id": "q_48bc9dcbd769",
+      "text": "free 50 rakuten sign up free 50 items any store",
+      "relevant_doc_ids": [
+        "reddit_1p5xogu",
+        "reddit_1p5xr7c",
+        "reddit_1p5xpn9"
+      ],
+      "hard_negative_doc_ids": [
+        "reddit_1p5xq79",
+        "reddit_1p5xpxa",
+        "reddit_1p5xsgx",
+        "reddit_1p5xqvo",
+        "reddit_1p5xos6",
+        "reddit_1p5xmq5",
+        "reddit_1mmyhwb",
+        "reddit_1sxlhqo",
+        "reddit_1pwxc6g",
+        "reddit_1mj436s",
+        "reddit_1lkvxii",
+        "reddit_1p5ykra"
+      ],
+      "tags": [
+        "noisy"
+      ],
+      "split": "dev",
+      "group_key": "general feedback|the review is enthusiastic and informative about the"
+    },
+    {
+      "query_id": "q_1ab0351d7471",
+      "text": "customer issue trend: the review is enthusiastic and informative about the cashback offer, with no complaints or issues mentioned.",
+      "relevant_doc_ids": [
+        "reddit_1p5xogu",
+        "reddit_1p5xr7c",
+        "reddit_1p5xpn9"
+      ],
+      "hard_negative_doc_ids": [
+        "reddit_1p5xq79",
+        "reddit_1p5xpxa",
+        "reddit_1p5xsgx",
+        "reddit_1p5xqvo",
+        "reddit_1p5xos6",
+        "reddit_1p5xmq5",
+        "reddit_1mmyhwb",
+        "reddit_1sxlhqo",
+        "reddit_1pwxc6g",
+        "reddit_1mj436s",
+        "reddit_1lkvxii",
+        "reddit_1p5ykra"
+      ],
+      "tags": [
+        "intent"
+      ],
+      "split": "train",
+      "group_key": "general feedback|the review is enthusiastic and informative about the"
+    },
+    {
+      "query_id": "q_45b1da7701ef",
+      "text": "gc bhn free 50 rakuten sign up free 50 items any store",
+      "relevant_doc_ids": [
+        "reddit_1p5xogu",
+        "reddit_1p5xr7c",
+        "reddit_1p5xpn9"
+      ],
+      "hard_negative_doc_ids": [
+        "reddit_1p5xq79",
+        "reddit_1p5xpxa",
+        "reddit_1p5xsgx",
+        "reddit_1p5xqvo",
+        "reddit_1p5xos6",
+        "reddit_1p5xmq5",
+        "reddit_1mmyhwb",
+        "reddit_1sxlhqo",
+        "reddit_1pwxc6g",
+        "reddit_1mj436s",
+        "reddit_1lkvxii",
+        "reddit_1p5ykra"
+      ],
+      "tags": [
+        "acronym",
+        "acronym"
+      ],
+      "split": "train",
+      "group_key": "general feedback|the review is enthusiastic and informative about the"
+    },
+    {
+      "query_id": "q_466350e0693a",
+      "text": "free 50 rakuten free 50 items any store online after",
+      "relevant_doc_ids": [
+        "reddit_1p5xos6",
+        "reddit_1p5xqvo",
+        "reddit_1p5xr7c"
+      ],
+      "hard_negative_doc_ids": [
+        "reddit_1p5xsgx",
+        "reddit_1p5xmq5",
+        "reddit_1p5xq79",
+        "reddit_1p5xpxa",
+        "reddit_1p5xpn9",
+        "reddit_1p5xogu",
+        "reddit_1mmyhwb",
+        "reddit_1sxlhqo",
+        "reddit_1pwxc6g",
+        "reddit_1mj436s",
+        "reddit_1lkvxii",
+        "reddit_1p5ykra"
+      ],
+      "tags": [
+        "lexical"
+      ],
+      "split": "dev",
+      "group_key": "general feedback|the review is enthusiastic and informative about the"
+    },
+    {
+      "query_id": "q_df72a05c36a2",
+      "text": "General Feedback issue reported by customers: The review is enthusiastic and informative about the cashback offer, with no complaints or issues mentioned.",
+      "relevant_doc_ids": [
+        "reddit_1p5xos6",
+        "reddit_1p5xqvo",
+        "reddit_1p5xr7c"
+      ],
+      "hard_negative_doc_ids": [
+        "reddit_1p5xsgx",
+        "reddit_1p5xmq5",
+        "reddit_1p5xq79",
+        "reddit_1p5xpxa",
+        "reddit_1p5xpn9",
+        "reddit_1p5xogu",
+        "reddit_1mmyhwb",
+        "reddit_1sxlhqo",
+        "reddit_1pwxc6g",
+        "reddit_1mj436s",
+        "reddit_1lkvxii",
+        "reddit_1p5ykra"
+      ],
+      "tags": [
+        "paraphrase"
+      ],
+      "split": "dev",
+      "group_key": "general feedback|the review is enthusiastic and informative about the"
+    },
+    {
+      "query_id": "q_b372682d19d8",
+      "text": "free 50 rakuten free 50 items any store online after",
+      "relevant_doc_ids": [
+        "reddit_1p5xos6",
+        "reddit_1p5xqvo",
+        "reddit_1p5xr7c"
+      ],
+      "hard_negative_doc_ids": [
+        "reddit_1p5xsgx",
+        "reddit_1p5xmq5",
+        "reddit_1p5xq79",
+        "reddit_1p5xpxa",
+        "reddit_1p5xpn9",
+        "reddit_1p5xogu",
+        "reddit_1mmyhwb",
+        "reddit_1sxlhqo",
+        "reddit_1pwxc6g",
+        "reddit_1mj436s",
+        "reddit_1lkvxii",
+        "reddit_1p5ykra"
+      ],
+      "tags": [
+        "noisy"
+      ],
+      "split": "train",
+      "group_key": "general feedback|the review is enthusiastic and informative about the"
+    },
+    {
+      "query_id": "q_eacad8cca8f4",
+      "text": "customer issue trend: the review is enthusiastic and informative about the cashback offer, with no complaints or issues mentioned.",
+      "relevant_doc_ids": [
+        "reddit_1p5xos6",
+        "reddit_1p5xqvo",
+        "reddit_1p5xr7c"
+      ],
+      "hard_negative_doc_ids": [
+        "reddit_1p5xsgx",
+        "reddit_1p5xmq5",
+        "reddit_1p5xq79",
+        "reddit_1p5xpxa",
+        "reddit_1p5xpn9",
+        "reddit_1p5xogu",
+        "reddit_1mmyhwb",
+        "reddit_1sxlhqo",
+        "reddit_1pwxc6g",
+        "reddit_1mj436s",
+        "reddit_1lkvxii",
+        "reddit_1p5ykra"
+      ],
+      "tags": [
+        "intent"
+      ],
+      "split": "train",
+      "group_key": "general feedback|the review is enthusiastic and informative about the"
+    },
+    {
+      "query_id": "q_0bfcea9df14e",
+      "text": "gc bhn free 50 rakuten free 50 items any store online after",
+      "relevant_doc_ids": [
+        "reddit_1p5xos6",
+        "reddit_1p5xqvo",
+        "reddit_1p5xr7c"
+      ],
+      "hard_negative_doc_ids": [
+        "reddit_1p5xsgx",
+        "reddit_1p5xmq5",
+        "reddit_1p5xq79",
+        "reddit_1p5xpxa",
+        "reddit_1p5xpn9",
+        "reddit_1p5xogu",
+        "reddit_1mmyhwb",
+        "reddit_1sxlhqo",
+        "reddit_1pwxc6g",
+        "reddit_1mj436s",
+        "reddit_1lkvxii",
+        "reddit_1p5ykra"
+      ],
+      "tags": [
+        "acronym",
+        "acronym"
+      ],
+      "split": "train",
+      "group_key": "general feedback|the review is enthusiastic and informative about the"
+    },
+    {
+      "query_id": "q_d89cca62a0c2",
+      "text": "free 50 rakuten sign up free 50 items any store",
+      "relevant_doc_ids": [
+        "reddit_1p5xpn9",
+        "reddit_1p5xr7c",
+        "reddit_1p5xogu"
+      ],
+      "hard_negative_doc_ids": [
+        "reddit_1p5xq79",
+        "reddit_1p5xpxa",
+        "reddit_1p5xsgx",
+        "reddit_1p5xqvo",
+        "reddit_1p5xos6",
+        "reddit_1p5xmq5",
+        "reddit_1mmyhwb",
+        "reddit_1sxlhqo",
+        "reddit_1pwxc6g",
+        "reddit_1mj436s",
+        "reddit_1lkvxii",
+        "reddit_1p5ykra"
+      ],
+      "tags": [
+        "lexical"
+      ],
+      "split": "test",
+      "group_key": "general feedback|the review is enthusiastic and informative about the"
+    },
+    {
+      "query_id": "q_dc52f8a62735",
+      "text": "General Feedback issue reported by customers: The review is enthusiastic and informative about the cashback offer, with no complaints or issues mentioned.",
+      "relevant_doc_ids": [
+        "reddit_1p5xpn9",
+        "reddit_1p5xr7c",
+        "reddit_1p5xogu"
+      ],
+      "hard_negative_doc_ids": [
+        "reddit_1p5xq79",
+        "reddit_1p5xpxa",
+        "reddit_1p5xsgx",
+        "reddit_1p5xqvo",
+        "reddit_1p5xos6",
+        "reddit_1p5xmq5",
+        "reddit_1mmyhwb",
+        "reddit_1sxlhqo",
+        "reddit_1pwxc6g",
+        "reddit_1mj436s",
+        "reddit_1lkvxii",
+        "reddit_1p5ykra"
+      ],
+      "tags": [
+        "paraphrase"
+      ],
+      "split": "train",
+      "group_key": "general feedback|the review is enthusiastic and informative about the"
+    },
+    {
+      "query_id": "q_ec8a2eb9117f",
+      "text": "free 50 rakuten sign up free 50 items any store",
+      "relevant_doc_ids": [
+        "reddit_1p5xpn9",
+        "reddit_1p5xr7c",
+        "reddit_1p5xogu"
+      ],
+      "hard_negative_doc_ids": [
+        "reddit_1p5xq79",
+        "reddit_1p5xpxa",
+        "reddit_1p5xsgx",
+        "reddit_1p5xqvo",
+        "reddit_1p5xos6",
+        "reddit_1p5xmq5",
+        "reddit_1mmyhwb",
+        "reddit_1sxlhqo",
+        "reddit_1pwxc6g",
+        "reddit_1mj436s",
+        "reddit_1lkvxii",
+        "reddit_1p5ykra"
+      ],
+      "tags": [
+        "noisy"
+      ],
+      "split": "dev",
+      "group_key": "general feedback|the review is enthusiastic and informative about the"
+    },
+    {
+      "query_id": "q_08da66f2a580",
+      "text": "customer issue trend: the review is enthusiastic and informative about the cashback offer, with no complaints or issues mentioned.",
+      "relevant_doc_ids": [
+        "reddit_1p5xpn9",
+        "reddit_1p5xr7c",
+        "reddit_1p5xogu"
+      ],
+      "hard_negative_doc_ids": [
+        "reddit_1p5xq79",
+        "reddit_1p5xpxa",
+        "reddit_1p5xsgx",
+        "reddit_1p5xqvo",
+        "reddit_1p5xos6",
+        "reddit_1p5xmq5",
+        "reddit_1mmyhwb",
+        "reddit_1sxlhqo",
+        "reddit_1pwxc6g",
+        "reddit_1mj436s",
+        "reddit_1lkvxii",
+        "reddit_1p5ykra"
+      ],
+      "tags": [
+        "intent"
+      ],
+      "split": "dev",
+      "group_key": "general feedback|the review is enthusiastic and informative about the"
+    },
+    {
+      "query_id": "q_e101865e3010",
+      "text": "gc bhn free 50 rakuten sign up free 50 items any store",
+      "relevant_doc_ids": [
+        "reddit_1p5xpn9",
+        "reddit_1p5xr7c",
+        "reddit_1p5xogu"
+      ],
+      "hard_negative_doc_ids": [
+        "reddit_1p5xq79",
+        "reddit_1p5xpxa",
+        "reddit_1p5xsgx",
+        "reddit_1p5xqvo",
+        "reddit_1p5xos6",
+        "reddit_1p5xmq5",
+        "reddit_1mmyhwb",
+        "reddit_1sxlhqo",
+        "reddit_1pwxc6g",
+        "reddit_1mj436s",
+        "reddit_1lkvxii",
+        "reddit_1p5ykra"
+      ],
+      "tags": [
+        "acronym",
+        "acronym"
+      ],
+      "split": "train",
+      "group_key": "general feedback|the review is enthusiastic and informative about the"
+    },
+    {
+      "query_id": "q_5ccdf8c26a1b",
+      "text": "free 50 rakuten free 50 items any store online after",
+      "relevant_doc_ids": [
+        "reddit_1p5xqvo",
+        "reddit_1p5xos6",
+        "reddit_1p5xr7c"
+      ],
+      "hard_negative_doc_ids": [
+        "reddit_1p5xsgx",
+        "reddit_1p5xmq5",
+        "reddit_1p5xq79",
+        "reddit_1p5xpxa",
+        "reddit_1p5xpn9",
+        "reddit_1p5xogu",
+        "reddit_1mmyhwb",
+        "reddit_1sxlhqo",
+        "reddit_1pwxc6g",
+        "reddit_1mj436s",
+        "reddit_1lkvxii",
+        "reddit_1p5ykra"
+      ],
+      "tags": [
+        "lexical"
+      ],
+      "split": "train",
+      "group_key": "general feedback|the review is enthusiastic and informative about the"
+    },
+    {
+      "query_id": "q_b3d26ec8b4cc",
+      "text": "General Feedback issue reported by customers: The review is enthusiastic and informative about the cashback offer, highlighting benefits and clear instructions without complaints.",
+      "relevant_doc_ids": [
+        "reddit_1p5xqvo",
+        "reddit_1p5xos6",
+        "reddit_1p5xr7c"
+      ],
+      "hard_negative_doc_ids": [
+        "reddit_1p5xsgx",
+        "reddit_1p5xmq5",
+        "reddit_1p5xq79",
+        "reddit_1p5xpxa",
+        "reddit_1p5xpn9",
+        "reddit_1p5xogu",
+        "reddit_1mmyhwb",
+        "reddit_1sxlhqo",
+        "reddit_1pwxc6g",
+        "reddit_1mj436s",
+        "reddit_1lkvxii",
+        "reddit_1p5ykra"
+      ],
+      "tags": [
+        "paraphrase"
+      ],
+      "split": "train",
+      "group_key": "general feedback|the review is enthusiastic and informative about the"
+    },
+    {
+      "query_id": "q_9880fed6e739",
+      "text": "free 50 rakuten free 50 items any store online after",
+      "relevant_doc_ids": [
+        "reddit_1p5xqvo",
+        "reddit_1p5xos6",
+        "reddit_1p5xr7c"
+      ],
+      "hard_negative_doc_ids": [
+        "reddit_1p5xsgx",
+        "reddit_1p5xmq5",
+        "reddit_1p5xq79",
+        "reddit_1p5xpxa",
+        "reddit_1p5xpn9",
+        "reddit_1p5xogu",
+        "reddit_1mmyhwb",
+        "reddit_1sxlhqo",
+        "reddit_1pwxc6g",
+        "reddit_1mj436s",
+        "reddit_1lkvxii",
+        "reddit_1p5ykra"
+      ],
+      "tags": [
+        "noisy"
+      ],
+      "split": "train",
+      "group_key": "general feedback|the review is enthusiastic and informative about the"
+    },
+    {
+      "query_id": "q_aaa80c020cf2",
+      "text": "customer issue trend: the review is enthusiastic and informative about the cashback offer, highlighting benefits and clear instructions without complaints.",
+      "relevant_doc_ids": [
+        "reddit_1p5xqvo",
+        "reddit_1p5xos6",
+        "reddit_1p5xr7c"
+      ],
+      "hard_negative_doc_ids": [
+        "reddit_1p5xsgx",
+        "reddit_1p5xmq5",
+        "reddit_1p5xq79",
+        "reddit_1p5xpxa",
+        "reddit_1p5xpn9",
+        "reddit_1p5xogu",
+        "reddit_1mmyhwb",
+        "reddit_1sxlhqo",
+        "reddit_1pwxc6g",
+        "reddit_1mj436s",
+        "reddit_1lkvxii",
+        "reddit_1p5ykra"
+      ],
+      "tags": [
+        "intent"
+      ],
+      "split": "dev",
+      "group_key": "general feedback|the review is enthusiastic and informative about the"
+    },
+    {
+      "query_id": "q_946f6519b984",
+      "text": "gc bhn free 50 rakuten free 50 items any store online after",
+      "relevant_doc_ids": [
+        "reddit_1p5xqvo",
+        "reddit_1p5xos6",
+        "reddit_1p5xr7c"
+      ],
+      "hard_negative_doc_ids": [
+        "reddit_1p5xsgx",
+        "reddit_1p5xmq5",
+        "reddit_1p5xq79",
+        "reddit_1p5xpxa",
+        "reddit_1p5xpn9",
+        "reddit_1p5xogu",
+        "reddit_1mmyhwb",
+        "reddit_1sxlhqo",
+        "reddit_1pwxc6g",
+        "reddit_1mj436s",
+        "reddit_1lkvxii",
+        "reddit_1p5ykra"
+      ],
+      "tags": [
+        "acronym",
+        "acronym"
+      ],
+      "split": "train",
+      "group_key": "general feedback|the review is enthusiastic and informative about the"
+    },
+    {
+      "query_id": "q_cb9f5573f537",
+      "text": "free 50 rakuten sign up free 50 items any store",
+      "relevant_doc_ids": [
+        "reddit_1p5xr7c",
+        "reddit_1p5xpn9",
+        "reddit_1p5xogu"
+      ],
+      "hard_negative_doc_ids": [
+        "reddit_1p5xq79",
+        "reddit_1p5xpxa",
+        "reddit_1p5xsgx",
+        "reddit_1p5xqvo",
+        "reddit_1p5xos6",
+        "reddit_1p5xmq5",
+        "reddit_1mmyhwb",
+        "reddit_1sxlhqo",
+        "reddit_1pwxc6g",
+        "reddit_1mj436s",
+        "reddit_1lkvxii",
+        "reddit_1p5ykra"
+      ],
+      "tags": [
+        "lexical"
+      ],
+      "split": "train",
+      "group_key": "general feedback|the review is enthusiastic and informative about the"
+    },
+    {
+      "query_id": "q_fa0ebbe7c866",
+      "text": "General Feedback issue reported by customers: The review is enthusiastic and informative about the cashback offer, with no complaints or issues mentioned.",
+      "relevant_doc_ids": [
+        "reddit_1p5xr7c",
+        "reddit_1p5xpn9",
+        "reddit_1p5xogu"
+      ],
+      "hard_negative_doc_ids": [
+        "reddit_1p5xq79",
+        "reddit_1p5xpxa",
+        "reddit_1p5xsgx",
+        "reddit_1p5xqvo",
+        "reddit_1p5xos6",
+        "reddit_1p5xmq5",
+        "reddit_1mmyhwb",
+        "reddit_1sxlhqo",
+        "reddit_1pwxc6g",
+        "reddit_1mj436s",
+        "reddit_1lkvxii",
+        "reddit_1p5ykra"
+      ],
+      "tags": [
+        "paraphrase"
+      ],
+      "split": "train",
+      "group_key": "general feedback|the review is enthusiastic and informative about the"
+    },
+    {
+      "query_id": "q_10fb6a2194e9",
+      "text": "free 50 rakuten sign up free 50 items any store",
+      "relevant_doc_ids": [
+        "reddit_1p5xr7c",
+        "reddit_1p5xpn9",
+        "reddit_1p5xogu"
+      ],
+      "hard_negative_doc_ids": [
+        "reddit_1p5xq79",
+        "reddit_1p5xpxa",
+        "reddit_1p5xsgx",
+        "reddit_1p5xqvo",
+        "reddit_1p5xos6",
+        "reddit_1p5xmq5",
+        "reddit_1mmyhwb",
+        "reddit_1sxlhqo",
+        "reddit_1pwxc6g",
+        "reddit_1mj436s",
+        "reddit_1lkvxii",
+        "reddit_1p5ykra"
+      ],
+      "tags": [
+        "noisy"
+      ],
+      "split": "train",
+      "group_key": "general feedback|the review is enthusiastic and informative about the"
+    },
+    {
+      "query_id": "q_da2a2adc2381",
+      "text": "customer issue trend: the review is enthusiastic and informative about the cashback offer, with no complaints or issues mentioned.",
+      "relevant_doc_ids": [
+        "reddit_1p5xr7c",
+        "reddit_1p5xpn9",
+        "reddit_1p5xogu"
+      ],
+      "hard_negative_doc_ids": [
+        "reddit_1p5xq79",
+        "reddit_1p5xpxa",
+        "reddit_1p5xsgx",
+        "reddit_1p5xqvo",
+        "reddit_1p5xos6",
+        "reddit_1p5xmq5",
+        "reddit_1mmyhwb",
+        "reddit_1sxlhqo",
+        "reddit_1pwxc6g",
+        "reddit_1mj436s",
+        "reddit_1lkvxii",
+        "reddit_1p5ykra"
+      ],
+      "tags": [
+        "intent"
+      ],
+      "split": "train",
+      "group_key": "general feedback|the review is enthusiastic and informative about the"
+    },
+    {
+      "query_id": "q_07e8f1cbfb0d",
+      "text": "gc bhn free 50 rakuten sign up free 50 items any store",
+      "relevant_doc_ids": [
+        "reddit_1p5xr7c",
+        "reddit_1p5xpn9",
+        "reddit_1p5xogu"
+      ],
+      "hard_negative_doc_ids": [
+        "reddit_1p5xq79",
+        "reddit_1p5xpxa",
+        "reddit_1p5xsgx",
+        "reddit_1p5xqvo",
+        "reddit_1p5xos6",
+        "reddit_1p5xmq5",
+        "reddit_1mmyhwb",
+        "reddit_1sxlhqo",
+        "reddit_1pwxc6g",
+        "reddit_1mj436s",
+        "reddit_1lkvxii",
+        "reddit_1p5ykra"
+      ],
+      "tags": [
+        "acronym",
+        "acronym"
+      ],
+      "split": "train",
+      "group_key": "general feedback|the review is enthusiastic and informative about the"
+    },
+    {
+      "query_id": "q_8f9a45b1e6e9",
+      "text": "h 40 prepaid visa unregistered w 90 crypto m looking",
+      "relevant_doc_ids": [
+        "reddit_1lqvq45",
+        "reddit_1poat06"
+      ],
+      "hard_negative_doc_ids": [
+        "reddit_1n2pz4z",
+        "reddit_1mywkj3",
+        "reddit_1naey8v",
+        "reddit_1m1jmqo",
+        "reddit_1n328a7",
+        "reddit_1mzwlww",
+        "reddit_1ly3yhp",
+        "reddit_1n453nn",
+        "reddit_1lni0rs",
+        "reddit_1lkp212",
+        "reddit_1sy1t41",
+        "reddit_1nfa80p"
+      ],
+      "tags": [
+        "lexical"
+      ],
+      "split": "dev",
+      "group_key": "general feedback|the review is informational and does not express"
+    },
+    {
+      "query_id": "q_b1b38249f49f",
+      "text": "General Feedback issue reported by customers: The review is informational and does not express positive or negative sentiment.",
+      "relevant_doc_ids": [
+        "reddit_1lqvq45",
+        "reddit_1poat06"
+      ],
+      "hard_negative_doc_ids": [
+        "reddit_1n2pz4z",
+        "reddit_1mywkj3",
+        "reddit_1naey8v",
+        "reddit_1m1jmqo",
+        "reddit_1n328a7",
+        "reddit_1mzwlww",
+        "reddit_1ly3yhp",
+        "reddit_1n453nn",
+        "reddit_1lni0rs",
+        "reddit_1lkp212",
+        "reddit_1sy1t41",
+        "reddit_1nfa80p"
+      ],
+      "tags": [
+        "paraphrase"
+      ],
+      "split": "test",
+      "group_key": "general feedback|the review is informational and does not express"
+    },
+    {
+      "query_id": "q_48e6fda5df1b",
+      "text": "h 40 prepaid visa unregistered w 90 crypto m looking",
+      "relevant_doc_ids": [
+        "reddit_1lqvq45",
+        "reddit_1poat06"
+      ],
+      "hard_negative_doc_ids": [
+        "reddit_1n2pz4z",
+        "reddit_1mywkj3",
+        "reddit_1naey8v",
+        "reddit_1m1jmqo",
+        "reddit_1n328a7",
+        "reddit_1mzwlww",
+        "reddit_1ly3yhp",
+        "reddit_1n453nn",
+        "reddit_1lni0rs",
+        "reddit_1lkp212",
+        "reddit_1sy1t41",
+        "reddit_1nfa80p"
+      ],
+      "tags": [
+        "noisy"
+      ],
+      "split": "test",
+      "group_key": "general feedback|the review is informational and does not express"
+    },
+    {
+      "query_id": "q_968bfc4967cf",
+      "text": "customer issue trend: the review is informational and does not express positive or negative sentiment.",
+      "relevant_doc_ids": [
+        "reddit_1lqvq45",
+        "reddit_1poat06"
+      ],
+      "hard_negative_doc_ids": [
+        "reddit_1n2pz4z",
+        "reddit_1mywkj3",
+        "reddit_1naey8v",
+        "reddit_1m1jmqo",
+        "reddit_1n328a7",
+        "reddit_1mzwlww",
+        "reddit_1ly3yhp",
+        "reddit_1n453nn",
+        "reddit_1lni0rs",
+        "reddit_1lkp212",
+        "reddit_1sy1t41",
+        "reddit_1nfa80p"
+      ],
+      "tags": [
+        "intent"
+      ],
+      "split": "test",
+      "group_key": "general feedback|the review is informational and does not express"
+    },
+    {
+      "query_id": "q_a90922cdb16b",
+      "text": "gc bhn h 40 prepaid visa unregistered w 90 crypto m looking",
+      "relevant_doc_ids": [
+        "reddit_1lqvq45",
+        "reddit_1poat06"
+      ],
+      "hard_negative_doc_ids": [
+        "reddit_1n2pz4z",
+        "reddit_1mywkj3",
+        "reddit_1naey8v",
+        "reddit_1m1jmqo",
+        "reddit_1n328a7",
+        "reddit_1mzwlww",
+        "reddit_1ly3yhp",
+        "reddit_1n453nn",
+        "reddit_1lni0rs",
+        "reddit_1lkp212",
+        "reddit_1sy1t41",
+        "reddit_1nfa80p"
+      ],
+      "tags": [
+        "acronym",
+        "acronym"
+      ],
+      "split": "train",
+      "group_key": "general feedback|the review is informational and does not express"
+    },
+    {
+      "query_id": "q_d31708d3a102",
+      "text": "h 150 visa gc w 80 crypto gc giftcardmall single",
+      "relevant_doc_ids": [
+        "reddit_1poat06",
+        "reddit_1lqvq45"
+      ],
+      "hard_negative_doc_ids": [
+        "reddit_1ly3yhp",
+        "reddit_1n328a7",
+        "reddit_1mzwlww",
+        "reddit_1n2pz4z",
+        "reddit_1n453nn",
+        "reddit_1naey8v",
+        "reddit_1mywkj3",
+        "reddit_1m1jmqo",
+        "reddit_1lni0rs",
+        "reddit_1sy1t41",
+        "reddit_1lgw4hp",
+        "reddit_1mj436s"
+      ],
+      "tags": [
+        "lexical",
+        "acronym"
+      ],
+      "split": "test",
+      "group_key": "general feedback|the review is informational and does not express"
+    },
+    {
+      "query_id": "q_f7fa8686f8c8",
+      "text": "General Feedback issue reported by customers: The review is informational and does not express clear positive or negative sentiment.",
+      "relevant_doc_ids": [
+        "reddit_1poat06",
+        "reddit_1lqvq45"
+      ],
+      "hard_negative_doc_ids": [
+        "reddit_1ly3yhp",
+        "reddit_1n328a7",
+        "reddit_1mzwlww",
+        "reddit_1n2pz4z",
+        "reddit_1n453nn",
+        "reddit_1naey8v",
+        "reddit_1mywkj3",
+        "reddit_1m1jmqo",
+        "reddit_1lni0rs",
+        "reddit_1sy1t41",
+        "reddit_1lgw4hp",
+        "reddit_1mj436s"
+      ],
+      "tags": [
+        "paraphrase"
+      ],
+      "split": "train",
+      "group_key": "general feedback|the review is informational and does not express"
+    },
+    {
+      "query_id": "q_7b469db4ae7d",
+      "text": "h 150 visa gc w 80 crypto gc giftcardmall single",
+      "relevant_doc_ids": [
+        "reddit_1poat06",
+        "reddit_1lqvq45"
+      ],
+      "hard_negative_doc_ids": [
+        "reddit_1ly3yhp",
+        "reddit_1n328a7",
+        "reddit_1mzwlww",
+        "reddit_1n2pz4z",
+        "reddit_1n453nn",
+        "reddit_1naey8v",
+        "reddit_1mywkj3",
+        "reddit_1m1jmqo",
+        "reddit_1lni0rs",
+        "reddit_1sy1t41",
+        "reddit_1lgw4hp",
+        "reddit_1mj436s"
+      ],
+      "tags": [
+        "noisy",
+        "acronym"
+      ],
+      "split": "train",
+      "group_key": "general feedback|the review is informational and does not express"
+    },
+    {
+      "query_id": "q_989ab02593f3",
+      "text": "customer issue trend: the review is informational and does not express clear positive or negative sentiment.",
+      "relevant_doc_ids": [
+        "reddit_1poat06",
+        "reddit_1lqvq45"
+      ],
+      "hard_negative_doc_ids": [
+        "reddit_1ly3yhp",
+        "reddit_1n328a7",
+        "reddit_1mzwlww",
+        "reddit_1n2pz4z",
+        "reddit_1n453nn",
+        "reddit_1naey8v",
+        "reddit_1mywkj3",
+        "reddit_1m1jmqo",
+        "reddit_1lni0rs",
+        "reddit_1sy1t41",
+        "reddit_1lgw4hp",
+        "reddit_1mj436s"
+      ],
+      "tags": [
+        "intent"
+      ],
+      "split": "train",
+      "group_key": "general feedback|the review is informational and does not express"
+    },
+    {
+      "query_id": "q_f42877da0ec0",
+      "text": "gc bhn h 150 visa gc w 80 crypto gc giftcardmall single",
+      "relevant_doc_ids": [
+        "reddit_1poat06",
+        "reddit_1lqvq45"
+      ],
+      "hard_negative_doc_ids": [
+        "reddit_1ly3yhp",
+        "reddit_1n328a7",
+        "reddit_1mzwlww",
+        "reddit_1n2pz4z",
+        "reddit_1n453nn",
+        "reddit_1naey8v",
+        "reddit_1mywkj3",
+        "reddit_1m1jmqo",
+        "reddit_1lni0rs",
+        "reddit_1sy1t41",
+        "reddit_1lgw4hp",
+        "reddit_1mj436s"
+      ],
+      "tags": [
+        "acronym",
+        "acronym"
+      ],
+      "split": "train",
+      "group_key": "general feedback|the review is informational and does not express"
+    },
+    {
+      "query_id": "q_bc6164046efd",
+      "text": "h 100 visa giftcard w 75 crypto giftcardmall",
+      "relevant_doc_ids": [
+        "reddit_1n2pz4z",
+        "reddit_1naey8v"
+      ],
+      "hard_negative_doc_ids": [
+        "reddit_1mywkj3",
+        "reddit_1poat06",
+        "reddit_1ly3yhp",
+        "reddit_1lqvq45",
+        "reddit_1m1jmqo",
+        "reddit_1n328a7",
+        "reddit_1mzwlww",
+        "reddit_1n453nn",
+        "reddit_1sy1t41",
+        "reddit_1lni0rs",
+        "reddit_1lkp212",
+        "reddit_1nfa80p"
+      ],
+      "tags": [
+        "lexical"
+      ],
+      "split": "test",
+      "group_key": "general feedback|the review is a straightforward trade offer without"
+    },
+    {
+      "query_id": "q_599a104a91e5",
+      "text": "General Feedback issue reported by customers: The review is a straightforward trade offer without any expressed opinion or issue.",
+      "relevant_doc_ids": [
+        "reddit_1n2pz4z",
+        "reddit_1naey8v"
+      ],
+      "hard_negative_doc_ids": [
+        "reddit_1mywkj3",
+        "reddit_1poat06",
+        "reddit_1ly3yhp",
+        "reddit_1lqvq45",
+        "reddit_1m1jmqo",
+        "reddit_1n328a7",
+        "reddit_1mzwlww",
+        "reddit_1n453nn",
+        "reddit_1sy1t41",
+        "reddit_1lni0rs",
+        "reddit_1lkp212",
+        "reddit_1nfa80p"
+      ],
+      "tags": [
+        "paraphrase"
+      ],
+      "split": "train",
+      "group_key": "general feedback|the review is a straightforward trade offer without"
+    },
+    {
+      "query_id": "q_7ae5a294c502",
+      "text": "h 100 visa giftcard w 75 crypto giftcardmall",
+      "relevant_doc_ids": [
+        "reddit_1n2pz4z",
+        "reddit_1naey8v"
+      ],
+      "hard_negative_doc_ids": [
+        "reddit_1mywkj3",
+        "reddit_1poat06",
+        "reddit_1ly3yhp",
+        "reddit_1lqvq45",
+        "reddit_1m1jmqo",
+        "reddit_1n328a7",
+        "reddit_1mzwlww",
+        "reddit_1n453nn",
+        "reddit_1sy1t41",
+        "reddit_1lni0rs",
+        "reddit_1lkp212",
+        "reddit_1nfa80p"
+      ],
+      "tags": [
+        "noisy"
+      ],
+      "split": "dev",
+      "group_key": "general feedback|the review is a straightforward trade offer without"
+    },
+    {
+      "query_id": "q_685dc1361211",
+      "text": "customer issue trend: the review is a straightforward trade offer without any expressed opinion or issue.",
+      "relevant_doc_ids": [
+        "reddit_1n2pz4z",
+        "reddit_1naey8v"
+      ],
+      "hard_negative_doc_ids": [
+        "reddit_1mywkj3",
+        "reddit_1poat06",
+        "reddit_1ly3yhp",
+        "reddit_1lqvq45",
+        "reddit_1m1jmqo",
+        "reddit_1n328a7",
+        "reddit_1mzwlww",
+        "reddit_1n453nn",
+        "reddit_1sy1t41",
+        "reddit_1lni0rs",
+        "reddit_1lkp212",
+        "reddit_1nfa80p"
+      ],
+      "tags": [
+        "intent"
+      ],
+      "split": "train",
+      "group_key": "general feedback|the review is a straightforward trade offer without"
+    },
+    {
+      "query_id": "q_008d57095f53",
+      "text": "gc bhn h 100 visa giftcard w 75 crypto giftcardmall",
+      "relevant_doc_ids": [
+        "reddit_1n2pz4z",
+        "reddit_1naey8v"
+      ],
+      "hard_negative_doc_ids": [
+        "reddit_1mywkj3",
+        "reddit_1poat06",
+        "reddit_1ly3yhp",
+        "reddit_1lqvq45",
+        "reddit_1m1jmqo",
+        "reddit_1n328a7",
+        "reddit_1mzwlww",
+        "reddit_1n453nn",
+        "reddit_1sy1t41",
+        "reddit_1lni0rs",
+        "reddit_1lkp212",
+        "reddit_1nfa80p"
+      ],
+      "tags": [
+        "acronym",
+        "acronym"
+      ],
+      "split": "train",
+      "group_key": "general feedback|the review is a straightforward trade offer without"
+    },
+    {
+      "query_id": "q_0dd07c74e9dd",
+      "text": "h giftcardmall visa mc 25 100 w 65 70 crypto",
+      "relevant_doc_ids": [
+        "reddit_1naey8v",
+        "reddit_1n2pz4z"
+      ],
+      "hard_negative_doc_ids": [
+        "reddit_1mywkj3",
+        "reddit_1ly3yhp",
+        "reddit_1sy1t41",
+        "reddit_1poat06",
+        "reddit_1lqvq45",
+        "reddit_1n328a7",
+        "reddit_1mzwlww",
+        "reddit_1lni0rs",
+        "reddit_1n453nn",
+        "reddit_1m1jmqo",
+        "reddit_1lkp212",
+        "reddit_1nfa80p"
+      ],
+      "tags": [
+        "lexical"
+      ],
+      "split": "train",
+      "group_key": "general feedback|the review is a straightforward trade offer without"
+    },
+    {
+      "query_id": "q_6d466b435e59",
+      "text": "General Feedback issue reported by customers: The review is a straightforward trade offer without expressing positive or negative sentiment.",
+      "relevant_doc_ids": [
+        "reddit_1naey8v",
+        "reddit_1n2pz4z"
+      ],
+      "hard_negative_doc_ids": [
+        "reddit_1mywkj3",
+        "reddit_1ly3yhp",
+        "reddit_1sy1t41",
+        "reddit_1poat06",
+        "reddit_1lqvq45",
+        "reddit_1n328a7",
+        "reddit_1mzwlww",
+        "reddit_1lni0rs",
+        "reddit_1n453nn",
+        "reddit_1m1jmqo",
+        "reddit_1lkp212",
+        "reddit_1nfa80p"
+      ],
+      "tags": [
+        "paraphrase"
+      ],
+      "split": "dev",
+      "group_key": "general feedback|the review is a straightforward trade offer without"
+    },
+    {
+      "query_id": "q_67458711daca",
+      "text": "h giftcardmall visa mc 25 100 w 65 70 crypto",
+      "relevant_doc_ids": [
+        "reddit_1naey8v",
+        "reddit_1n2pz4z"
+      ],
+      "hard_negative_doc_ids": [
+        "reddit_1mywkj3",
+        "reddit_1ly3yhp",
+        "reddit_1sy1t41",
+        "reddit_1poat06",
+        "reddit_1lqvq45",
+        "reddit_1n328a7",
+        "reddit_1mzwlww",
+        "reddit_1lni0rs",
+        "reddit_1n453nn",
+        "reddit_1m1jmqo",
+        "reddit_1lkp212",
+        "reddit_1nfa80p"
+      ],
+      "tags": [
+        "noisy"
+      ],
+      "split": "train",
+      "group_key": "general feedback|the review is a straightforward trade offer without"
+    },
+    {
+      "query_id": "q_8757edc98f99",
+      "text": "customer issue trend: the review is a straightforward trade offer without expressing positive or negative sentiment.",
+      "relevant_doc_ids": [
+        "reddit_1naey8v",
+        "reddit_1n2pz4z"
+      ],
+      "hard_negative_doc_ids": [
+        "reddit_1mywkj3",
+        "reddit_1ly3yhp",
+        "reddit_1sy1t41",
+        "reddit_1poat06",
+        "reddit_1lqvq45",
+        "reddit_1n328a7",
+        "reddit_1mzwlww",
+        "reddit_1lni0rs",
+        "reddit_1n453nn",
+        "reddit_1m1jmqo",
+        "reddit_1lkp212",
+        "reddit_1nfa80p"
+      ],
+      "tags": [
+        "intent"
+      ],
+      "split": "train",
+      "group_key": "general feedback|the review is a straightforward trade offer without"
+    },
+    {
+      "query_id": "q_669c7030a903",
+      "text": "gc bhn h giftcardmall visa mc 25 100 w 65 70 crypto",
+      "relevant_doc_ids": [
+        "reddit_1naey8v",
+        "reddit_1n2pz4z"
+      ],
+      "hard_negative_doc_ids": [
+        "reddit_1mywkj3",
+        "reddit_1ly3yhp",
+        "reddit_1sy1t41",
+        "reddit_1poat06",
+        "reddit_1lqvq45",
+        "reddit_1n328a7",
+        "reddit_1mzwlww",
+        "reddit_1lni0rs",
+        "reddit_1n453nn",
+        "reddit_1m1jmqo",
+        "reddit_1lkp212",
+        "reddit_1nfa80p"
+      ],
+      "tags": [
+        "acronym",
+        "acronym"
+      ],
+      "split": "dev",
+      "group_key": "general feedback|the review is a straightforward trade offer without"
+    }
+  ]
+}
