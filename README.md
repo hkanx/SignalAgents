@@ -38,7 +38,7 @@ SignalAgents closes that gap.
 - Monitor brand health with a single score and trend line
 - Track sentiment shifts by topic, keyword, and subreddit
 - Generate ready-to-send customer response drafts powered by your knowledge base
-- Use competitor analysis mode to benchmark against the gift card and e-commerce landscape
+- Use competitor analysis mode to benchmark against the ecommerce marketplace landscape
 
 
 ### Product
@@ -80,7 +80,7 @@ When a complaint crosses the criticality threshold (default 7.0/10), the system 
 
 
 ### 4. Multi-Brand & Competitor Analysis
-SignalAgents is not locked to a single brand. Change the company name and synonyms in the sidebar, and you can analyze **any brand or competitor** in the gift card, e-commerce, or fintech space. Run it for your competitors to understand their pain points, or benchmark your brand health against the landscape.
+SignalAgents is not locked to a single brand. Change the company name and synonyms in the sidebar, and you can analyze **any brand or competitor** in the ecommerce marketplace or fintech space. Run it for your competitors to understand their pain points, or benchmark your brand health against the landscape.
 
 
 ---
@@ -169,7 +169,7 @@ SignalAgents/
    jira_client_archive.py
  utils/
    jira_client.py                # Jira REST API + Playwright form automation
-   reddit_affiliate_filter.py    # BHN-specific relevance scoring
+   reddit_affiliate_filter.py    # Etsy-context relevance scoring
    keyword_diagnostics.py        # Issue detection, brand health, risk keywords
    response_generator.py         # KB-powered LLM response drafting
    opensearch_kb.py              # AWS OpenSearch knowledge base client
@@ -289,14 +289,14 @@ Reddit's public JSON API and OpenAI's API both enforce rate limits. If you encou
 SignalAgents is designed to analyze **any brand** — not just your own. Simply change the company name and synonyms in the sidebar:
 
 
-- **Your brand**: `Giftcards.com` with synonyms `bhn, blackhawk network, giftcardmall, CashStar, tango card`
-- **A competitor**: `Raise.com` with synonyms `raise, raise gift cards, raise.com reviews`
-- **A category**: `prepaid visa gift card` with synonyms `visa gift card, mastercard gift card, amex gift card`
+- **Your brand**: `Etsy` with synonyms `etsy, etsy.com, etsy seller, etsy shop, etsy order`
+- **A competitor**: `eBay marketplace` with synonyms `ebay marketplace, depop, poshmark, mercari`
+- **A category**: `online marketplace support` with synonyms `order issue, refund delay, shipping delay, seller dispute`
 
 
 This makes SignalAgents a powerful tool for:
 - **Competitive benchmarking** — compare sentiment scores and issue themes across brands
-- **Market landscape analysis** — understand pain points across the entire gift card / e-commerce category
+- **Market landscape analysis** — understand pain points across the broader ecommerce marketplace category
 - **Opportunity identification** — find gaps where competitors are failing that your brand can win
 
 

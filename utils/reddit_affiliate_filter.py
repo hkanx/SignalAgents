@@ -2,46 +2,51 @@ import re
 from typing import Dict, List, Tuple
 
 STRONG_INCLUDE_TERMS = {
-    "blackhawk network",
-    "giftcards.com",
-    "giftcardmall",
-    "cardpool",
-    "omnicard",
-    "cashstar",
-    "tango card",
+    "etsy",
+    "etsy.com",
+    "etsy shop",
+    "etsy seller",
+    "etsy order",
+    "etsy support",
+    "etsy case",
 }
 
 WEAK_INCLUDE_TERMS = {
-    "giftcards",
-    "gift cards",
-    "gift card",
+    "order",
+    "refund",
+    "shipping",
+    "tracking",
+    "dispute",
+    "seller",
+    "buyer",
+    "return",
 }
 
 EXCLUDE_PATTERNS = {
-    "hockey_context": re.compile(r"\b(blackhawks|nhl|hockey)\b", re.IGNORECASE),
     "job_posting": re.compile(r"\b(job|jobs|career|careers|hiring|internship|recruiter|recruiting)\b", re.IGNORECASE),
+    "stock_investor_context": re.compile(r"\b(stock|stocks|investor|investing|earnings|nasdaq|nyse|ticker|share price)\b", re.IGNORECASE),
+    "craft_general_without_etsy": re.compile(r"\b(handmade|craft fair|craft show|diy|cricut|crochet|knitting)\b", re.IGNORECASE),
 }
 
-BHN_CONTEXT_TERMS = {
-    "blackhawk",
-    "network",
-    "gift card",
-    "gift cards",
-    "giftcard",
-    "giftcardmall",
-    "prepaid",
-    "issuer",
-    "merchant",
-    "reload",
-    "balance",
-    "activation",
-    "redemption",
+ETSY_CONTEXT_TERMS = {
+    "etsy",
+    "marketplace",
+    "seller",
+    "buyer",
+    "order",
+    "shop",
+    "listing",
+    "case",
+    "support",
+    "refund",
+    "shipping",
+    "tracking",
+    "delivery",
 }
 
-BUSINESS_CONTEXT_TERMS = {"issuer", "merchant", "prepaid", "activation", "balance", "reload", "redemption"}
+BUSINESS_CONTEXT_TERMS = {"order", "refund", "shipping", "tracking", "case", "dispute", "delivery", "seller", "buyer"}
 
 URL_PATTERN = re.compile(r"https?://\S+", re.IGNORECASE)
-BHN_WORD_PATTERN = re.compile(r"\bbhn\b", re.IGNORECASE)
 TOKEN_PATTERN = re.compile(r"[a-z0-9']+", re.IGNORECASE)
 
 
@@ -56,12 +61,22 @@ def _tokenize(text: str) -> List[str]:
 
 
 def evaluate_affiliate_relevance(title: str, body: str, threshold: float = 2.5) -> Dict[str, object]:
-    """Two-stage relevance decision for BHN/Giftcards affiliate context."""
+    """Two-stage relevance decision for Etsy marketplace context."""
     raw_text = f"{title} {body}".lower()
     text = _normalize_text(title=title, body=body)
     tokens = set(_tokenize(text))
 
     for reason_key, pattern in EXCLUDE_PATTERNS.items():
+        if reason_key == "craft_general_without_etsy":
+            if pattern.search(text) and "etsy" not in text:
+                return {
+                    "include": False,
+                    "stage": "context_gate",
+                    "score": 0.0,
+                    "reason": f"excluded:{reason_key}",
+                    "signals": [],
+                }
+            continue
         if pattern.search(text):
             return {
                 "include": False,
@@ -73,11 +88,11 @@ def evaluate_affiliate_relevance(title: str, body: str, threshold: float = 2.5) 
 
     strong_hits = [term for term in STRONG_INCLUDE_TERMS if term in text]
     weak_hits = [term for term in WEAK_INCLUDE_TERMS if term in text]
-    has_bhn = bool(BHN_WORD_PATTERN.search(text))
-    has_bhn_in_raw = "bhn" in raw_text
-    has_bhn_context = any(ctx in text for ctx in BHN_CONTEXT_TERMS)
+    has_etsy = bool(re.search(r"\betsy\b", text))
+    has_etsy_in_raw = "etsy" in raw_text
+    has_etsy_context = any(ctx in text for ctx in ETSY_CONTEXT_TERMS)
 
-    if has_bhn_in_raw and not has_bhn:
+    if has_etsy_in_raw and not has_etsy:
         return {
             "include": False,
             "stage": "context_gate",
@@ -86,16 +101,16 @@ def evaluate_affiliate_relevance(title: str, body: str, threshold: float = 2.5) 
             "signals": [],
         }
 
-    if has_bhn and not has_bhn_context:
+    if has_etsy and not has_etsy_context:
         return {
             "include": False,
             "stage": "context_gate",
             "score": 0.0,
-            "reason": "excluded:bhn_without_context",
+            "reason": "excluded:no_brand_context",
             "signals": [],
         }
 
-    passes_context = bool(strong_hits) or (has_bhn and has_bhn_context) or (weak_hits and (bool(strong_hits) or has_bhn_context))
+    passes_context = bool(strong_hits) or (has_etsy and has_etsy_context) or (weak_hits and (bool(strong_hits) or has_etsy_context))
     if not passes_context:
         if weak_hits:
             return {
@@ -118,12 +133,12 @@ def evaluate_affiliate_relevance(title: str, body: str, threshold: float = 2.5) 
     if strong_hits:
         score += 2.0 + min(2.0, float(len(strong_hits)))
         signals.append(f"strong:{len(strong_hits)}")
-    if has_bhn and has_bhn_context:
+    if has_etsy and has_etsy_context:
         score += 2.0
-        signals.append("bhn:context")
+        signals.append("etsy:context")
     if weak_hits:
         score += 0.5
-        signals.append("weak:gift_card")
+        signals.append("weak:ecommerce_support")
     if tokens.intersection(BUSINESS_CONTEXT_TERMS):
         score += 0.5
         signals.append("business_context")

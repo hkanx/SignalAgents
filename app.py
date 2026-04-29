@@ -30,8 +30,8 @@ load_dotenv()
 
 logger = logging.getLogger(__name__)
 
-DEFAULT_COMPANY_NAME = "Giftcards.com"
-DEFAULT_COMPANY_SYNONYMS = "giftcards.com, bhn, blackhawk network, giftcardmall, CashStar, tango card"
+DEFAULT_COMPANY_NAME = "Etsy"
+DEFAULT_COMPANY_SYNONYMS = "etsy, etsy.com, etsy seller, etsy shop, etsy order, etsy support"
 DEFAULT_REDDIT_USER_AGENT = "signalagents-brand-monitor/0.1"
 
 REDDIT_SEARCH_ENDPOINT = "https://www.reddit.com/search.json"
@@ -636,10 +636,10 @@ def main() -> None:
     comp_subreddit_name = "all"
     if enable_comparison:
         st.sidebar.markdown("### Competitor Company")
-        comp_company_name = st.sidebar.text_input("Competitor name", value="Gift Card Granny", key="comp_company_name")
+        comp_company_name = st.sidebar.text_input("Competitor name", value="eBay Marketplace", key="comp_company_name")
         comp_company_synonyms = st.sidebar.text_input(
             "Competitor synonyms (comma-separated)",
-            value="giftcardgranny, vanillagift, giftya, egifter, perfectgift.com",
+            value="ebay marketplace, depop, poshmark, mercari",
             key="comp_company_synonyms",
         )
         comp_subreddit_name = st.sidebar.text_input("Competitor subreddit", "all", key="comp_subreddit")
@@ -749,7 +749,7 @@ def main() -> None:
                 comp_reviews.extend(comp_reddit)
 
             if data_source in {"Web", "Reddit + Web"}:
-                comp_web, comp_web, _, comp_web_err = fetch_web_reviews(
+                comp_web, _, comp_web_err = fetch_web_reviews(
                     company_name=comp_company_name,
                     synonyms_raw=comp_company_synonyms,
                     count_per_term=web_count_per_term,
@@ -943,7 +943,7 @@ def main() -> None:
            st.markdown(
                "Monitor brand health with a single score. "
                "Track sentiment shifts by topic and keyword. "
-               "Benchmark against competitors in the gift card and e-commerce landscape."
+               "Benchmark against competitors in the ecommerce marketplace landscape."
            )
        with who2:
            st.markdown("**Product**")
@@ -1025,7 +1025,7 @@ def main() -> None:
        st.markdown("### Multi-Brand & Competitor Analysis")
        st.markdown(
            "SignalAgents is not locked to a single brand. Change the company name and synonyms in the sidebar "
-           "to analyze **any brand or competitor** in the gift card, e-commerce, or fintech space. Use it for:"
+           "to analyze **any brand or competitor** in the ecommerce marketplace or fintech space. Use it for:"
        )
        st.markdown(
            "- **Competitive benchmarking** — compare sentiment scores across brands\n"

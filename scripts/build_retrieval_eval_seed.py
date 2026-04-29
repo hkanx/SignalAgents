@@ -127,11 +127,14 @@ def _group_docs(docs: Sequence[RowDoc], min_group_size: int) -> Dict[str, List[R
 def _noisy_variant(base: str) -> str:
     s = base.lower()
     replacements = {
-        "gift card": "gc",
-        "giftcards": "gcs",
-        "blackhawk network": "bhn",
+        "etsy": "ets",
+        "marketplace": "mkt",
+        "listing": "lst",
+        "seller": "slr",
+        "buyer": "byr",
         "balance": "bal",
-        "activation": "activate",
+        "refund": "rfd",
+        "shipping": "ship",
         "website": "site",
         "customer": "cust",
     }
@@ -226,6 +229,8 @@ def _build_seed(
     max_relevant_per_query: int = 3,
     min_hard_negatives_per_query: int = 5,
     max_hard_negatives_per_query: int = 12,
+    include_acronym_every_n: int = 2,
+    include_noisy_every_n: int = 1,
 ) -> Dict[str, Any]:
     groups = _group_docs(docs, min_group_size=min_group_size)
 
@@ -267,10 +272,12 @@ def _build_seed(
             variants = [
                 ("lexical", lex),
                 ("paraphrase", _paraphrase_variant(anchor.category, anchor.reason)),
-                ("noisy", _noisy_variant(lex)),
                 ("intent", _intent_variant(anchor.category, anchor.reason)),
-                ("acronym", f"gc bhn {lex}".strip()),
             ]
+            if include_noisy_every_n > 0 and (len(queries) % include_noisy_every_n == 0):
+                variants.append(("noisy", _noisy_variant(lex)))
+            if include_acronym_every_n > 0 and (len(queries) % include_acronym_every_n == 0):
+                variants.append(("acronym", f"etsy mkt {lex}".strip()))
 
             hard_neg_ids = _hard_negatives(
                 anchor=anchor,
@@ -286,8 +293,9 @@ def _build_seed(
                     continue
                 qid = f"q_{_query_id(key + anchor.doc_id + tag + qtext)}"
                 tags = [tag]
-                if tag == "acronym" or "bhn" in qtext.lower() or re.search(r"\bgc\b", qtext.lower()):
+                if tag == "acronym" or re.search(r"\bmkt\b", qtext.lower()):
                     tags.append("acronym")
+                tags = list(dict.fromkeys(tags))
 
                 queries.append(
                     {
@@ -309,6 +317,8 @@ def _build_seed(
             "max_relevant_per_query": max_relevant_per_query,
             "min_hard_negatives_per_query": min_hard_negatives_per_query,
             "max_hard_negatives_per_query": max_hard_negatives_per_query,
+            "include_acronym_every_n": include_acronym_every_n,
+            "include_noisy_every_n": include_noisy_every_n,
         },
         "documents": documents,
         "queries": queries,
@@ -407,6 +417,8 @@ def main() -> None:
     parser.add_argument("--min-test-queries", type=int, default=5)
     parser.add_argument("--min-group-size", type=int, default=2)
     parser.add_argument("--max-relevant-per-query", type=int, default=3)
+    parser.add_argument("--include-acronym-every-n", type=int, default=2)
+    parser.add_argument("--include-noisy-every-n", type=int, default=1)
     parser.add_argument("--allow-small", action="store_true", help="Allow writing even when quality gates fail.")
     args = parser.parse_args()
 
@@ -423,6 +435,8 @@ def main() -> None:
         min_group_size=args.min_group_size,
         max_relevant_per_query=args.max_relevant_per_query,
         min_hard_negatives_per_query=args.min_hard_neg,
+        include_acronym_every_n=args.include_acronym_every_n,
+        include_noisy_every_n=args.include_noisy_every_n,
     )
     stats = _stats(seed)
     errs = _validate(

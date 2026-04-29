@@ -4,6 +4,7 @@ import json
 import math
 import os
 import re
+import time
 from dataclasses import dataclass
 from typing import Dict, Iterable, List, Literal, Sequence
 
@@ -89,14 +90,17 @@ def _tfidf_vector(tokens: Sequence[str], idf: Dict[str, float]) -> Dict[str, flo
     return {t: v / norm for t, v in vec.items()}
 
 
-def _cosine_scores(query_tokens: Sequence[str], doc_tokens: Dict[str, List[str]], idf: Dict[str, float]) -> Dict[str, float]:
+def _cosine_scores(
+    query_tokens: Sequence[str],
+    idf: Dict[str, float],
+    doc_vecs: Dict[str, Dict[str, float]],
+) -> Dict[str, float]:
     qv = _tfidf_vector(query_tokens, idf)
     if not qv:
         return {}
 
     scores: Dict[str, float] = {}
-    for doc_id, toks in doc_tokens.items():
-        dv = _tfidf_vector(toks, idf)
+    for doc_id, dv in doc_vecs.items():
         if not dv:
             continue
         dot = 0.0
@@ -108,6 +112,11 @@ def _cosine_scores(query_tokens: Sequence[str], doc_tokens: Dict[str, List[str]]
 
 
 _EMBED_CACHE: Dict[str, List[float]] = {}
+_RETRIEVE_CACHE: Dict[tuple[str, str, str, int], List[RetrievedDoc]] = {}
+_EMBED_MAX_WORDS = 6000
+_EMBED_MAX_CHARS = 12000
+_CORPUS_CACHE: Dict[str, tuple[Dict[str, List[str]], Dict[str, float]]] = {}
+_DOC_TFIDF_CACHE: Dict[str, Dict[str, Dict[str, float]]] = {}
 
 
 def _cosine_dense(a: Sequence[float], b: Sequence[float]) -> float:
@@ -132,11 +141,31 @@ def _embedding_scores(query: str, documents: Dict[str, str]) -> Dict[str, float]
 
     client = OpenAI(api_key=api_key)
 
+    def _truncate_for_embedding(text: str, max_words: int = _EMBED_MAX_WORDS, max_chars: int = _EMBED_MAX_CHARS) -> str:
+        words = (text or "").split()
+        out = text if len(words) <= max_words else " ".join(words[:max_words])
+        return out[:max_chars]
+
     def get_embedding(text: str) -> List[float]:
-        key = f"{model}::{text}"
+        safe_text = _truncate_for_embedding(text)
+        key = f"{model}::{safe_text}"
         if key in _EMBED_CACHE:
             return _EMBED_CACHE[key]
-        emb = client.embeddings.create(model=model, input=text).data[0].embedding
+        attempt = safe_text
+        for _ in range(6):
+            try:
+                emb = client.embeddings.create(model=model, input=attempt).data[0].embedding
+                _EMBED_CACHE[key] = emb
+                return emb
+            except Exception as exc:
+                msg = str(exc).lower()
+                if "maximum context length" not in msg and "invalid 'input'" not in msg:
+                    raise
+                if len(attempt) <= 512:
+                    raise
+                attempt = attempt[: max(512, len(attempt) // 2)]
+        # Should only be reachable if all retries failed with context errors.
+        emb = client.embeddings.create(model=model, input=attempt).data[0].embedding
         _EMBED_CACHE[key] = emb
         return emb
 
@@ -164,30 +193,67 @@ def _rrf_fuse(rankings: Iterable[List[RetrievedDoc]], k_rrf: int = 60) -> Dict[s
 
 
 def retrieve(documents: Dict[str, str], query: str, mode: Mode, k: int) -> List[RetrievedDoc]:
-    doc_tokens = _build_doc_tokens(documents)
-    idf = _idf(doc_tokens)
+    cache_key = (mode, str(k), query, str(len(documents)))
+    if cache_key in _RETRIEVE_CACHE:
+        return _RETRIEVE_CACHE[cache_key]
+
+    corpus_key = str(hash(tuple(sorted(documents.keys()))))
+    if corpus_key in _CORPUS_CACHE:
+        doc_tokens, idf = _CORPUS_CACHE[corpus_key]
+    else:
+        doc_tokens = _build_doc_tokens(documents)
+        idf = _idf(doc_tokens)
+        _CORPUS_CACHE[corpus_key] = (doc_tokens, idf)
+
+    if corpus_key in _DOC_TFIDF_CACHE:
+        doc_vecs = _DOC_TFIDF_CACHE[corpus_key]
+    else:
+        doc_vecs = {doc_id: _tfidf_vector(toks, idf) for doc_id, toks in doc_tokens.items()}
+        _DOC_TFIDF_CACHE[corpus_key] = doc_vecs
+
     q_tokens = _tokenize(query)
     vector_backend = os.getenv("RETRIEVAL_VECTOR_BACKEND", "auto").strip().lower()
 
     if mode == "bm25":
-        return _rank(_bm25_scores(q_tokens, doc_tokens, idf), k)
+        result = _rank(_bm25_scores(q_tokens, doc_tokens, idf), k)
+        _RETRIEVE_CACHE[cache_key] = result
+        return result
 
     if mode == "vector":
         if vector_backend in {"auto", "openai"}:
             emb_scores = _embedding_scores(query, documents)
             if emb_scores:
-                return _rank(emb_scores, k)
-        return _rank(_cosine_scores(q_tokens, doc_tokens, idf), k)
+                result = _rank(emb_scores, k)
+                _RETRIEVE_CACHE[cache_key] = result
+                return result
+            if vector_backend == "openai":
+                raise RuntimeError(
+                    "RETRIEVAL_VECTOR_BACKEND=openai set, but embeddings were unavailable. "
+                    "Check OPENAI_API_KEY/openai package/model."
+                )
+        result = _rank(_cosine_scores(q_tokens, idf, doc_vecs), k)
+        _RETRIEVE_CACHE[cache_key] = result
+        return result
 
     if mode == "hybrid":
         bm25_r = _rank(_bm25_scores(q_tokens, doc_tokens, idf), k)
         if vector_backend in {"auto", "openai"}:
             emb_scores = _embedding_scores(query, documents)
-            vec_r = _rank(emb_scores, k) if emb_scores else _rank(_cosine_scores(q_tokens, doc_tokens, idf), k)
+            if emb_scores:
+                vec_r = _rank(emb_scores, k)
+            elif vector_backend == "openai":
+                raise RuntimeError(
+                    "RETRIEVAL_VECTOR_BACKEND=openai set, but embeddings were unavailable. "
+                    "Check OPENAI_API_KEY/openai package/model."
+                )
+            else:
+                vec_r = _rank(_cosine_scores(q_tokens, idf, doc_vecs), k)
         else:
-            vec_r = _rank(_cosine_scores(q_tokens, doc_tokens, idf), k)
+            vec_r = _rank(_cosine_scores(q_tokens, idf, doc_vecs), k)
         fused = _rrf_fuse([bm25_r, vec_r])
-        return _rank(fused, k)
+        result = _rank(fused, k)
+        _RETRIEVE_CACHE[cache_key] = result
+        return result
 
     raise ValueError(f"Unknown retrieval mode: {mode}")
 
@@ -229,6 +295,23 @@ def evaluate(
     modes: Sequence[Mode] = ("bm25", "vector", "hybrid"),
     ks: Sequence[int] = (5, 10, 20),
 ) -> Dict[str, object]:
+    _RETRIEVE_CACHE.clear()
+    _CORPUS_CACHE.clear()
+    _DOC_TFIDF_CACHE.clear()
+
+    cache_stats = {
+        "retrieve_hits": 0,
+        "retrieve_misses": 0,
+    }
+    latency_samples_ms: List[float] = []
+
+    def _percentile(values: Sequence[float], p: float) -> float:
+        if not values:
+            return 0.0
+        sorted_vals = sorted(values)
+        idx = max(0, min(len(sorted_vals) - 1, int(round((p / 100.0) * (len(sorted_vals) - 1)))))
+        return round(sorted_vals[idx], 3)
+
     def _aggregate(query_subset: Sequence[EvalQuery], mode: Mode, k: int) -> Dict[str, object]:
         r_sum = 0.0
         mrr_sum = 0.0
@@ -236,7 +319,16 @@ def evaluate(
         per_query: List[Dict[str, object]] = []
 
         for q in query_subset:
+            cache_key = (mode, str(k), q.text, str(len(documents)))
+            was_cached = cache_key in _RETRIEVE_CACHE
+            t0 = time.perf_counter()
             ranked = retrieve(documents, q.text, mode=mode, k=k)
+            elapsed_ms = (time.perf_counter() - t0) * 1000.0
+            latency_samples_ms.append(elapsed_ms)
+            if was_cached:
+                cache_stats["retrieve_hits"] += 1
+            else:
+                cache_stats["retrieve_misses"] += 1
             ranked_ids = [d.doc_id for d in ranked]
 
             r = recall_at_k(ranked_ids, q.relevant_doc_ids, k)
@@ -275,11 +367,18 @@ def evaluate(
         "vector_backend": os.getenv("RETRIEVAL_VECTOR_BACKEND", "auto").strip().lower() or "auto",
         "results": [],
         "results_by_split": {},
+        "results_by_tag": {},
     }
 
     split_map: Dict[str, List[EvalQuery]] = {}
+    tag_map: Dict[str, List[EvalQuery]] = {}
     for q in queries:
         split_map.setdefault(q.split or "all", []).append(q)
+        if not q.tags:
+            tag_map.setdefault("untagged", []).append(q)
+        else:
+            for tag in q.tags:
+                tag_map.setdefault(tag, []).append(q)
 
     for mode in modes:
         for k in ks:
@@ -288,6 +387,24 @@ def evaluate(
             for split, split_queries in split_map.items():
                 report["results_by_split"].setdefault(split, [])
                 report["results_by_split"][split].append(_aggregate(split_queries, mode, k))
+
+            for tag, tag_queries in tag_map.items():
+                report["results_by_tag"].setdefault(tag, [])
+                report["results_by_tag"][tag].append(_aggregate(tag_queries, mode, k))
+
+    total_calls = cache_stats["retrieve_hits"] + cache_stats["retrieve_misses"]
+    hit_rate = (cache_stats["retrieve_hits"] / total_calls) if total_calls else 0.0
+    report["cache_stats"] = {
+        **cache_stats,
+        "retrieve_total_calls": total_calls,
+        "retrieve_hit_rate": round(hit_rate, 6),
+    }
+    report["latency"] = {
+        "samples": len(latency_samples_ms),
+        "p50_ms": _percentile(latency_samples_ms, 50),
+        "p95_ms": _percentile(latency_samples_ms, 95),
+        "max_ms": round(max(latency_samples_ms), 3) if latency_samples_ms else 0.0,
+    }
 
     return report
 

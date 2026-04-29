@@ -1,122 +1,191 @@
 [
   {
     "id": "kb-001",
-    "title": "Delivery Delays and Resend Steps",
+    "title": "Order Not Received: Etsy Tracking and Recovery Steps",
     "category": "Order Issue",
-    "severity_tags": ["low", "medium"],
-    "keywords": ["delivery", "arrive", "not received", "email", "resend", "order status"],
-    "snippet": "If a digital card has not arrived, confirm the recipient email, check spam folders, and verify order status before requesting a resend.",
-    "resolution_steps": [
-      "Confirm order email and recipient email are correct.",
-      "Check spam or promotions folders for fulfillment messages.",
-      "Use the order status page to confirm processing state.",
-      "If still missing after processing, contact support to request resend."
+    "severity_tags": [
+      "medium",
+      "high"
     ],
-    "url_stub": "/support/order-status-and-resend"
+    "keywords": [
+      "order not received",
+      "tracking",
+      "delayed",
+      "delivery",
+      "missing package",
+      "etsy order"
+    ],
+    "snippet": "If an Etsy order has not arrived, confirm shipment status and open a support path based on tracking state.",
+    "resolution_steps": [
+      "Check order status and tracking updates in account history.",
+      "Confirm shipping address and expected delivery window.",
+      "Contact seller with order number and last tracking event.",
+      "Open or escalate a case if delivery window has passed."
+    ],
+    "url_stub": "/support/order-not-received"
   },
   {
     "id": "kb-002",
-    "title": "Activation Failure: Troubleshooting Invalid or Declined Card",
+    "title": "Item Not As Described: Evidence Checklist",
     "category": "Product Issue",
-    "severity_tags": ["medium", "high"],
-    "keywords": ["activation", "invalid code", "declined", "not working", "redeem"],
-    "snippet": "Activation failures are often caused by entry errors, pending activation windows, or merchant-side validation mismatch.",
-    "resolution_steps": [
-      "Re-enter code values and verify ZIP/PIN details.",
-      "Wait for posted activation window if purchase was recent.",
-      "Retry redemption at supported merchants only.",
-      "Escalate with transaction timestamp if failure persists."
+    "severity_tags": [
+      "medium"
     ],
-    "url_stub": "/support/activation-troubleshooting"
+    "keywords": [
+      "not as described",
+      "wrong item",
+      "quality issue",
+      "damaged",
+      "listing mismatch"
+    ],
+    "snippet": "Collecting clear evidence early speeds up item-not-as-described resolution.",
+    "resolution_steps": [
+      "Capture photos showing the mismatch or damage.",
+      "Compare received item details to listing description.",
+      "Send concise summary to seller with requested remedy.",
+      "Escalate to platform support if no response or no resolution."
+    ],
+    "url_stub": "/support/item-not-as-described"
   },
   {
     "id": "kb-003",
-    "title": "Balance Mismatch and Prior Authorization Holds",
-    "category": "Product Issue",
-    "severity_tags": ["medium", "high"],
-    "keywords": ["balance", "missing funds", "zero", "used already", "hold", "authorization"],
-    "snippet": "Balance discrepancies can occur due to prior authorization holds or partial settlements not yet released.",
-    "resolution_steps": [
-      "Check current balance and recent transactions.",
-      "Look for pending authorization holds from merchant checks.",
-      "Wait for hold release period where applicable.",
-      "Submit dispute request if balance does not normalize."
+    "title": "Refund Delay or Denial: SLA and Escalation",
+    "category": "Customer Support",
+    "severity_tags": [
+      "medium",
+      "high"
     ],
-    "url_stub": "/support/balance-discrepancy"
+    "keywords": [
+      "refund",
+      "refund denied",
+      "refund delay",
+      "chargeback",
+      "case"
+    ],
+    "snippet": "Use refund SLA checkpoints to decide when to escalate.",
+    "resolution_steps": [
+      "Verify refund decision status and timestamp.",
+      "Confirm payment method and expected settlement timeline.",
+      "Provide supporting evidence for disputed outcomes.",
+      "Escalate when SLA is exceeded or communication stalls."
+    ],
+    "url_stub": "/support/refund-delay-or-denial"
   },
   {
     "id": "kb-004",
-    "title": "Refund and Chargeback Timeline Expectations",
-    "category": "Order Issue",
-    "severity_tags": ["medium"],
-    "keywords": ["refund", "chargeback", "double charge", "reversal", "billing"],
-    "snippet": "Refund and chargeback handling depends on payment method and issuing timelines, with updates provided during review.",
-    "resolution_steps": [
-      "Collect order number and payment confirmation.",
-      "Submit refund or billing issue ticket with evidence.",
-      "Track case updates from support communications.",
-      "Escalate only if SLA window has passed."
+    "title": "Seller Communication Gap: Response Workflow",
+    "category": "Customer Support",
+    "severity_tags": [
+      "low",
+      "medium"
     ],
-    "url_stub": "/support/refund-and-billing"
+    "keywords": [
+      "no response",
+      "unresponsive seller",
+      "message seller",
+      "stalled case"
+    ],
+    "snippet": "Structured follow-up messages reduce seller-response delays.",
+    "resolution_steps": [
+      "Send one concise follow-up with order context and requested action.",
+      "Wait for the documented response window.",
+      "Log timestamps of prior outreach attempts.",
+      "Escalate to support with communication history attached."
+    ],
+    "url_stub": "/support/seller-communication-gap"
   },
   {
     "id": "kb-005",
-    "title": "Support Escalation Path for Unresolved Cases",
-    "category": "Customer Support",
-    "severity_tags": ["medium", "high"],
-    "keywords": ["support", "no response", "ignored", "agent", "escalate"],
-    "snippet": "When first-line support stalls, escalation requires case ID, prior contact history, and concise issue summary.",
-    "resolution_steps": [
-      "Provide existing case number and latest response time.",
-      "Summarize unresolved issue in one clear paragraph.",
-      "Request escalation review by specialist queue.",
-      "Set callback or follow-up expectation."
+    "title": "Account or Case Hold: Verification Requirements",
+    "category": "UX Issue",
+    "severity_tags": [
+      "medium",
+      "high"
     ],
-    "url_stub": "/support/escalation-guidelines"
+    "keywords": [
+      "account hold",
+      "case hold",
+      "verification",
+      "appeal",
+      "review pending"
+    ],
+    "snippet": "Account or case holds usually require specific verification artifacts before release.",
+    "resolution_steps": [
+      "Review hold notice and identify exact required documents.",
+      "Submit requested verification artifacts once, clearly labeled.",
+      "Track review status and expected decision date.",
+      "Escalate if hold remains unresolved beyond published SLA."
+    ],
+    "url_stub": "/support/account-or-case-hold"
   },
   {
     "id": "kb-006",
-    "title": "Fraud and Unauthorized Use Reporting Checklist",
-    "category": "Customer Support",
-    "severity_tags": ["high"],
-    "keywords": ["fraud", "scam", "unauthorized", "stolen", "compromised"],
-    "snippet": "Fraud incidents should be reported immediately with card details, transaction timestamps, and supporting evidence.",
-    "resolution_steps": [
-      "Stop sharing card details publicly.",
-      "Capture suspicious transaction times and amounts.",
-      "Submit fraud report through support intake.",
-      "Monitor account and payment statements for new activity."
+    "title": "Shipping Cost or Delay Complaints: Resolution Playbook",
+    "category": "Pricing",
+    "severity_tags": [
+      "low",
+      "medium"
     ],
-    "url_stub": "/support/fraud-reporting"
+    "keywords": [
+      "shipping cost",
+      "postage",
+      "shipping delay",
+      "late delivery",
+      "carrier delay"
+    ],
+    "snippet": "Clarify shipping-fee policy and delay expectations to reduce repeat complaints.",
+    "resolution_steps": [
+      "Confirm shipping fee and service level selected at checkout.",
+      "Share current carrier status and expected delivery update.",
+      "Offer policy-compliant remediation when delay exceeds SLA.",
+      "Document recurring lanes with high delay rates for ops follow-up."
+    ],
+    "url_stub": "/support/shipping-cost-or-delay"
   },
   {
     "id": "kb-007",
-    "title": "Checkout Errors and Payment Retry Guidance",
+    "title": "Checkout and Payment Failures on Marketplace Orders",
     "category": "UX Issue",
-    "severity_tags": ["medium"],
-    "keywords": ["checkout", "payment failed", "cart", "purchase", "error"],
-    "snippet": "Checkout failures may come from browser state, payment verification, or temporary gateway interruption.",
-    "resolution_steps": [
-      "Retry in private browsing mode or clear session cache.",
-      "Validate billing details and payment limits.",
-      "Attempt purchase after brief wait if gateway unavailable.",
-      "Contact support with error timestamp and screenshot."
+    "severity_tags": [
+      "medium"
     ],
-    "url_stub": "/support/checkout-errors"
+    "keywords": [
+      "checkout failed",
+      "payment failed",
+      "cart",
+      "order error",
+      "transaction declined"
+    ],
+    "snippet": "Most checkout failures can be narrowed to payment validation or session integrity issues.",
+    "resolution_steps": [
+      "Retry in a clean browser session and verify billing details.",
+      "Confirm payment method is supported and not rate-limited.",
+      "Capture exact error text and timestamp.",
+      "Escalate recurring error signatures to payments engineering."
+    ],
+    "url_stub": "/support/checkout-and-payment-failures"
   },
   {
     "id": "kb-008",
-    "title": "PIN Reset and Redemption Configuration",
-    "category": "UX Issue",
-    "severity_tags": ["low", "medium"],
-    "keywords": ["pin", "reset pin", "redeem", "merchant", "configuration"],
-    "snippet": "PIN-related redemption issues are often resolved by resetting PIN and verifying merchant acceptance requirements.",
-    "resolution_steps": [
-      "Reset PIN using self-service tools where available.",
-      "Verify merchant accepts that card type.",
-      "Reattempt with corrected payment sequence.",
-      "Escalate if merchant decline reason is unclear."
+    "title": "Fraud and Unauthorized Activity in Marketplace Orders",
+    "category": "Customer Support",
+    "severity_tags": [
+      "high"
     ],
-    "url_stub": "/support/pin-and-redemption"
+    "keywords": [
+      "fraud",
+      "unauthorized",
+      "scam",
+      "compromised account",
+      "suspicious transaction"
+    ],
+    "snippet": "High-risk fraud reports should be triaged immediately with account-protection actions.",
+    "resolution_steps": [
+      "Collect timestamps and details of suspicious activity.",
+      "Lock or secure affected account/payment method where possible.",
+      "Submit fraud report with evidence package.",
+      "Provide customer with expected investigation timeline."
+    ],
+    "url_stub": "/support/fraud-and-unauthorized-activity"
   }
 ]
