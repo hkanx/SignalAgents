@@ -44,6 +44,12 @@ COLOR_NEUTRAL = "#9e9e9e"
 COLOR_INFO = "#1f77b4"
 
 SENTIMENT_SCORE_THRESHOLD = 0.6
+PIPELINE_HTTP_TIMEOUT_SEC = float(os.getenv("PIPELINE_HTTP_TIMEOUT_SEC", "20"))
+PIPELINE_RETRY_MAX_ATTEMPTS = int(os.getenv("PIPELINE_RETRY_MAX_ATTEMPTS", "4"))
+PIPELINE_RETRY_BACKOFF_BASE_SEC = float(os.getenv("PIPELINE_RETRY_BACKOFF_BASE_SEC", "1.2"))
+PIPELINE_ANALYZE_MAX_WORKERS = int(os.getenv("PIPELINE_ANALYZE_MAX_WORKERS", "10"))
+# Fetch is kept serial (=1) by default to respect Reddit rate limits; override via env to parallelize.
+PIPELINE_FETCH_MAX_WORKERS = int(os.getenv("PIPELINE_FETCH_MAX_WORKERS", "1"))
 
 
 # Company comparison palette
@@ -404,10 +410,15 @@ def fetch_reddit_reviews(
 
                 payload: Optional[Dict[str, Any]] = None
                 last_error = ""
-                max_attempts = 4
+                max_attempts = max(1, PIPELINE_RETRY_MAX_ATTEMPTS)
                 for attempt in range(1, max_attempts + 1):
                     try:
-                        response = requests.get(endpoint, headers=headers, params=params, timeout=20)
+                        response = requests.get(
+                            endpoint,
+                            headers=headers,
+                            params=params,
+                            timeout=PIPELINE_HTTP_TIMEOUT_SEC,
+                        )
                         if response.status_code == 200:
                             payload = response.json()
                             break
@@ -424,7 +435,7 @@ def fetch_reddit_reviews(
 
                     if attempt < max_attempts:
                         request_retries += 1
-                        time.sleep(1.2 * attempt)
+                        time.sleep(PIPELINE_RETRY_BACKOFF_BASE_SEC * attempt)
 
                 if payload is None:
                     request_failures += 1
@@ -550,6 +561,12 @@ def fetch_reddit_reviews(
         "request_failures": request_failures,
         "request_retries": request_retries,
         "request_failure_messages": request_failure_messages[:8],
+        "runtime_controls": {
+            "http_timeout_sec": PIPELINE_HTTP_TIMEOUT_SEC,
+            "retry_max_attempts": PIPELINE_RETRY_MAX_ATTEMPTS,
+            "retry_backoff_base_sec": PIPELINE_RETRY_BACKOFF_BASE_SEC,
+            "analyze_max_workers": PIPELINE_ANALYZE_MAX_WORKERS,
+        },
     }
     return records, skipped, None, diagnostics
 
@@ -574,7 +591,7 @@ def fetch_web_reviews(company_name: str, synonyms_raw: str, count_per_term: int)
                 BING_ENDPOINT,
                 headers=headers,
                 params={"q": query, "count": count_per_term},
-                timeout=20,
+                timeout=PIPELINE_HTTP_TIMEOUT_SEC,
             )
             if response.status_code != 200:
                 return [], skipped, f"Bing API error: {response.status_code} {response.text}"
@@ -610,6 +627,7 @@ def fetch_web_reviews(company_name: str, synonyms_raw: str, count_per_term: int)
 def analyze_reviews_cached(
     reviews: List[Dict[str, Any]],
     analyze_cache: Dict[str, Dict[str, Any]],
+    max_workers: int = PIPELINE_ANALYZE_MAX_WORKERS,
 ) -> Tuple[List[Dict[str, Any]], Dict[str, int]]:
     from concurrent.futures import ThreadPoolExecutor, as_completed
 
@@ -640,7 +658,7 @@ def analyze_reviews_cached(
         return enriched
 
     analyzed: List[Dict[str, Any]] = [None] * len(reviews)
-    with ThreadPoolExecutor(max_workers=10) as pool:
+    with ThreadPoolExecutor(max_workers=max(1, int(max_workers))) as pool:
         future_to_idx = {pool.submit(_analyze_one, r): i for i, r in enumerate(reviews)}
         for future in as_completed(future_to_idx):
             idx = future_to_idx[future]
@@ -728,6 +746,14 @@ def main() -> None:
         st.session_state.analysis_results = None
     if "pipeline_cache" not in st.session_state:
         st.session_state.pipeline_cache = {"fetch": {}, "analyze": {}}
+    if "pipeline_perf_history" not in st.session_state:
+        st.session_state.pipeline_perf_history = {
+            "fetch": [],
+            "filter": [],
+            "retrieve": [],
+            "analyze": [],
+            "respond": [],
+        }
 
     if run_analysis:
         combined_reviews: List[Dict[str, Any]] = []
@@ -866,9 +892,36 @@ def main() -> None:
                "pipeline_diagnostics": {
                    "stage_ms": {k: round(v, 3) for k, v in stage_ms.items()},
                    "cache_stats": pipeline_cache_stats,
+                   "runtime_controls": {
+                       "http_timeout_sec": PIPELINE_HTTP_TIMEOUT_SEC,
+                       "retry_max_attempts": PIPELINE_RETRY_MAX_ATTEMPTS,
+                       "retry_backoff_base_sec": PIPELINE_RETRY_BACKOFF_BASE_SEC,
+                       "analyze_max_workers": PIPELINE_ANALYZE_MAX_WORKERS,
+                       "fetch_max_workers": PIPELINE_FETCH_MAX_WORKERS,
+                   },
+                   # Structured error / timeout / retry counts for dashboard or API consumers.
+                   "errors": [
+                       {"stage": "fetch", "message": msg, "ts": datetime.now(timezone.utc).isoformat()}
+                       for msg in (reddit_diagnostics or {}).get("request_failure_messages", [])
+                   ],
+                   "timeouts": sum(
+                       1 for msg in (reddit_diagnostics or {}).get("request_failure_messages", [])
+                       if "timeout" in msg.lower()
+                   ),
+                   "retries": int((reddit_diagnostics or {}).get("request_retries", 0)),
+                   "mode": data_source,
+                   "limits": {
+                       "relevance_threshold": float(relevance_threshold),
+                       "max_analyzed_reviews": int(max_analyzed_reviews),
+                       "max_pages": int(max_pages),
+                   },
                    "timing_generated_at": datetime.now(timezone.utc).isoformat(),
                },
            }
+           for stage_name, value in stage_ms.items():
+               st.session_state.pipeline_perf_history.setdefault(stage_name, [])
+               st.session_state.pipeline_perf_history[stage_name].append(float(value))
+               st.session_state.pipeline_perf_history[stage_name] = st.session_state.pipeline_perf_history[stage_name][-50:]
            st.session_state.pipeline_cache["fetch"] = fetch_cache
            st.session_state.pipeline_cache["analyze"] = analyze_cache
 
@@ -1656,12 +1709,36 @@ def main() -> None:
            with st.expander("Pipeline Performance", expanded=True):
                stage_ms = pipeline_diagnostics.get("stage_ms", {})
                cache_stats = pipeline_diagnostics.get("cache_stats", {})
+               runtime_controls = pipeline_diagnostics.get("runtime_controls", {})
+               history = st.session_state.get("pipeline_perf_history", {})
                p1, p2, p3, p4, p5 = st.columns(5)
                p1.metric("Fetch ms", f"{float(stage_ms.get('fetch', 0.0)):.1f}")
                p2.metric("Filter ms", f"{float(stage_ms.get('filter', 0.0)):.1f}")
                p3.metric("Retrieve ms", f"{float(stage_ms.get('retrieve', 0.0)):.1f}")
                p4.metric("Analyze ms", f"{float(stage_ms.get('analyze', 0.0)):.1f}")
                p5.metric("Respond ms", f"{float(stage_ms.get('respond', 0.0)):.1f}")
+
+               hist_rows = []
+               for stage_name in ("fetch", "filter", "retrieve", "analyze", "respond"):
+                   vals = [float(v) for v in history.get(stage_name, []) if v is not None]
+                   if not vals:
+                       continue
+                   ordered = sorted(vals)
+                   n = len(ordered)
+                   p50 = ordered[int(round((n - 1) * 0.50))]
+                   p95 = ordered[int(round((n - 1) * 0.95))]
+                   hist_rows.append(
+                       {
+                           "stage": stage_name,
+                           "samples": n,
+                           "p50_ms": round(p50, 3),
+                           "p95_ms": round(p95, 3),
+                           "max_ms": round(max(ordered), 3),
+                       }
+                   )
+               if hist_rows:
+                   st.markdown("**Stage Latency History (Recent Runs)**")
+                   st.dataframe(_one_based_index(pd.DataFrame(hist_rows)), use_container_width=True)
 
                fetch_hits = int(cache_stats.get("fetch_hits", 0))
                fetch_misses = int(cache_stats.get("fetch_misses", 0))
@@ -1684,7 +1761,54 @@ def main() -> None:
                c2.metric("Analyze cache hit rate", f"{analyze_hit_rate:.1f}%")
                c3.metric("KB retrieve cache hit rate", f"{retrieve_hit_rate:.1f}%")
                c4.metric("Response draft cache hit rate", f"{respond_hit_rate:.1f}%")
+               if runtime_controls:
+                   st.caption(
+                       "Runtime controls: "
+                       f"timeout={runtime_controls.get('http_timeout_sec')}s, "
+                       f"retries={runtime_controls.get('retry_max_attempts')}, "
+                       f"backoff={runtime_controls.get('retry_backoff_base_sec')}s, "
+                       f"analyze_workers={runtime_controls.get('analyze_max_workers')}, "
+                       f"fetch_workers={runtime_controls.get('fetch_max_workers', 1)}"
+                   )
+
+               # ── Structured diagnostics summary ───────────────────────
+               diag_errors = pipeline_diagnostics.get("errors", [])
+               diag_timeouts = int(pipeline_diagnostics.get("timeouts", 0))
+               diag_retries = int(pipeline_diagnostics.get("retries", 0))
+               diag_mode = pipeline_diagnostics.get("mode", "—")
+               diag_limits = pipeline_diagnostics.get("limits", {})
+
+               dm1, dm2, dm3, dm4 = st.columns(4)
+               dm1.metric("Pipeline Mode", diag_mode)
+               dm2.metric("HTTP Timeouts", diag_timeouts)
+               dm3.metric("HTTP Retries", diag_retries)
+               dm4.metric("Fetch Errors", len(diag_errors))
+
+               if diag_limits:
+                   st.caption(
+                       f"Active limits — relevance threshold: {diag_limits.get('relevance_threshold')}, "
+                       f"max analyzed: {diag_limits.get('max_analyzed_reviews')}, "
+                       f"max pages: {diag_limits.get('max_pages')}"
+                   )
+
+               if diag_errors:
+                   with st.expander(f"Fetch Errors ({len(diag_errors)})", expanded=False):
+                       st.dataframe(
+                           _one_based_index(pd.DataFrame(diag_errors)),
+                           use_container_width=True,
+                       )
+
                st.caption(f"Telemetry generated at: {pipeline_diagnostics.get('timing_generated_at', 'n/a')}")
+
+               # ── JSON export for ops / API consumers ────────────────────
+               diag_export = json.dumps(pipeline_diagnostics, indent=2, default=str)
+               st.download_button(
+                   label="⬇ Download diagnostics JSON",
+                   data=diag_export,
+                   file_name="pipeline_diagnostics.json",
+                   mime="application/json",
+                   key="diag_download_btn",
+               )
 
 
        if reddit_diagnostics:
