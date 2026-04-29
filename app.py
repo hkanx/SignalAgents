@@ -115,6 +115,40 @@ def _dedupe_reviews(records: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
     return deduped
 
 
+def _stable_cache_key(payload: Dict[str, Any]) -> str:
+    return hashlib.sha256(json.dumps(payload, sort_keys=True, default=str).encode("utf-8")).hexdigest()
+
+
+def _update_pipeline_response_telemetry(
+    retrieve_ms: float,
+    respond_ms: float,
+    retrieve_hit: bool,
+    respond_hit: bool,
+) -> None:
+    state = st.session_state.get("analysis_results")
+    if not state:
+        return
+    pd = state.get("pipeline_diagnostics")
+    if not isinstance(pd, dict):
+        return
+    stage_ms = pd.setdefault("stage_ms", {})
+    cache_stats = pd.setdefault("cache_stats", {})
+
+    stage_ms["retrieve"] = float(stage_ms.get("retrieve", 0.0)) + float(retrieve_ms)
+    stage_ms["respond"] = float(stage_ms.get("respond", 0.0)) + float(respond_ms)
+
+    if retrieve_hit:
+        cache_stats["retrieve_hits"] = int(cache_stats.get("retrieve_hits", 0)) + 1
+    else:
+        cache_stats["retrieve_misses"] = int(cache_stats.get("retrieve_misses", 0)) + 1
+    if respond_hit:
+        cache_stats["respond_hits"] = int(cache_stats.get("respond_hits", 0)) + 1
+    else:
+        cache_stats["respond_misses"] = int(cache_stats.get("respond_misses", 0)) + 1
+
+    pd["timing_generated_at"] = datetime.now(timezone.utc).isoformat()
+
+
 def _pretty_reason(reason: str) -> str:
     cleaned = reason.replace("excluded:", "").replace("matched:", "")
     cleaned = cleaned.replace("score=", "").replace("_", " ")
@@ -238,7 +272,10 @@ def _render_priority_case_queue(df: pd.DataFrame, key_prefix: str, show_draft_wo
 
     # Build a KB search cache key so we only re-query when the case changes.
     cache_key = f"{key_prefix}_kb_{hashlib.md5((post_title + reason).encode()).hexdigest()}"
+    retrieve_ms = 0.0
+    retrieve_hit = cache_key in st.session_state
     if cache_key not in st.session_state:
+        t_retrieve = time.perf_counter()
         st.session_state[cache_key] = lookup_synthetic_kb_hits(
             post_title=post_title,
             post_text=post_text,
@@ -247,15 +284,27 @@ def _render_priority_case_queue(df: pd.DataFrame, key_prefix: str, show_draft_wo
             reason=reason or category,
             top_k=3,
         )
+        retrieve_ms = (time.perf_counter() - t_retrieve) * 1000.0
     kb_hits = st.session_state.get(cache_key, [])
 
     # Generate (or retrieve cached) response draft.
     draft_key = f"{key_prefix}_draft_{cache_key}"
+    respond_ms = 0.0
+    respond_hit = draft_key in st.session_state
     if draft_key not in st.session_state:
         with st.spinner("Generating response draft…"):
+            t_respond = time.perf_counter()
             st.session_state[draft_key] = generate_kb_response(
                 post_title, post_text, category, severity, reason, kb_hits, sentiment=row_sentiment
             )
+            respond_ms = (time.perf_counter() - t_respond) * 1000.0
+
+    _update_pipeline_response_telemetry(
+        retrieve_ms=retrieve_ms,
+        respond_ms=respond_ms,
+        retrieve_hit=retrieve_hit,
+        respond_hit=respond_hit,
+    )
 
     base_reply = st.session_state[draft_key]
 
@@ -558,21 +607,49 @@ def fetch_web_reviews(company_name: str, synonyms_raw: str, count_per_term: int)
     return records, skipped, None
 
 
-def analyze_reviews(reviews: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+def analyze_reviews_cached(
+    reviews: List[Dict[str, Any]],
+    analyze_cache: Dict[str, Dict[str, Any]],
+) -> Tuple[List[Dict[str, Any]], Dict[str, int]]:
     from concurrent.futures import ThreadPoolExecutor, as_completed
 
+    cache_hits = 0
+    cache_misses = 0
+
     def _analyze_one(review: Dict[str, Any]) -> Dict[str, Any]:
+        nonlocal cache_hits, cache_misses
+        review_key = _stable_cache_key(
+            {
+                "text": review.get("text", ""),
+                "title": review.get("title", ""),
+                "platform": review.get("platform", ""),
+                "source_ref": review.get("source_ref", ""),
+            }
+        )
+        if review_key in analyze_cache:
+            cache_hits += 1
+            enriched = dict(review)
+            enriched.update(analyze_cache[review_key])
+            return enriched
+
+        cache_misses += 1
         result = analyze_review(review["text"])
+        analyze_cache[review_key] = result
         enriched = dict(review)
         enriched.update(result)
         return enriched
+
     analyzed: List[Dict[str, Any]] = [None] * len(reviews)
     with ThreadPoolExecutor(max_workers=10) as pool:
         future_to_idx = {pool.submit(_analyze_one, r): i for i, r in enumerate(reviews)}
         for future in as_completed(future_to_idx):
             idx = future_to_idx[future]
             analyzed[idx] = future.result()
-    return analyzed
+    return analyzed, {
+        "cache_hits": cache_hits,
+        "cache_misses": cache_misses,
+        "cache_total": cache_hits + cache_misses,
+    }
 
 def _rank_reviews_for_analysis(reviews: List[Dict[str, Any]], top_n: int) -> List[Dict[str, Any]]:
     sorted_reviews = sorted(
@@ -649,22 +726,62 @@ def main() -> None:
         st.session_state.comparison_results = None
     if "analysis_results" not in st.session_state:
         st.session_state.analysis_results = None
+    if "pipeline_cache" not in st.session_state:
+        st.session_state.pipeline_cache = {"fetch": {}, "analyze": {}}
 
     if run_analysis:
         combined_reviews: List[Dict[str, Any]] = []
         skipped = 0
         reddit_error: Optional[str] = None
+        stage_ms: Dict[str, float] = {"fetch": 0.0, "filter": 0.0, "retrieve": 0.0, "analyze": 0.0, "respond": 0.0}
+        pipeline_cache_stats = {
+            "fetch_hits": 0,
+            "fetch_misses": 0,
+            "analyze_hits": 0,
+            "analyze_misses": 0,
+            "retrieve_hits": 0,
+            "retrieve_misses": 0,
+            "respond_hits": 0,
+            "respond_misses": 0,
+        }
+        fetch_cache: Dict[str, Any] = st.session_state.pipeline_cache.get("fetch", {})
+        analyze_cache: Dict[str, Any] = st.session_state.pipeline_cache.get("analyze", {})
 
         if data_source in {"Reddit", "Reddit + Web"}:
-            reddit_reviews, reddit_skipped, reddit_error, reddit_diagnostics = fetch_reddit_reviews(
-                company_name=company_name,
-                synonyms_raw=company_synonyms,
-                subreddit_name=subreddit_name,
-                limit_per_term=reddit_limit_per_term,
-                years_back=int(years_back),
-                relevance_threshold=float(relevance_threshold),
-                max_pages=int(max_pages),
+            reddit_fetch_key = _stable_cache_key(
+                {
+                    "source": "reddit",
+                    "company_name": company_name,
+                    "company_synonyms": company_synonyms,
+                    "subreddit_name": subreddit_name,
+                    "limit_per_term": int(reddit_limit_per_term),
+                    "years_back": int(years_back),
+                    "relevance_threshold": float(relevance_threshold),
+                    "max_pages": int(max_pages),
+                }
             )
+            t_fetch = time.perf_counter()
+            if reddit_fetch_key in fetch_cache:
+                pipeline_cache_stats["fetch_hits"] += 1
+                reddit_reviews, reddit_skipped, reddit_error, reddit_diagnostics = fetch_cache[reddit_fetch_key]
+            else:
+                pipeline_cache_stats["fetch_misses"] += 1
+                reddit_reviews, reddit_skipped, reddit_error, reddit_diagnostics = fetch_reddit_reviews(
+                    company_name=company_name,
+                    synonyms_raw=company_synonyms,
+                    subreddit_name=subreddit_name,
+                    limit_per_term=reddit_limit_per_term,
+                    years_back=int(years_back),
+                    relevance_threshold=float(relevance_threshold),
+                    max_pages=int(max_pages),
+                )
+                fetch_cache[reddit_fetch_key] = (
+                    reddit_reviews,
+                    reddit_skipped,
+                    reddit_error,
+                    reddit_diagnostics,
+                )
+            stage_ms["fetch"] += (time.perf_counter() - t_fetch) * 1000.0
             skipped += reddit_skipped
             if reddit_error:
                 cached_path = Path(__file__).parent / "data" / "scheduled_results.json"
@@ -682,20 +799,37 @@ def main() -> None:
         
         if not st.session_state.analysis_results or not reddit_error:
            if data_source in {"Web", "Reddit + Web"}:
-               web_reviews, web_skipped, web_error = fetch_web_reviews(
-                   company_name=company_name,
-                   synonyms_raw=company_synonyms,
-                   count_per_term=web_count_per_term,
+               web_fetch_key = _stable_cache_key(
+                   {
+                       "source": "web",
+                       "company_name": company_name,
+                       "company_synonyms": company_synonyms,
+                       "count_per_term": int(web_count_per_term),
+                   }
                )
+               t_fetch = time.perf_counter()
+               if web_fetch_key in fetch_cache:
+                   pipeline_cache_stats["fetch_hits"] += 1
+                   web_reviews, web_skipped, web_error = fetch_cache[web_fetch_key]
+               else:
+                   pipeline_cache_stats["fetch_misses"] += 1
+                   web_reviews, web_skipped, web_error = fetch_web_reviews(
+                       company_name=company_name,
+                       synonyms_raw=company_synonyms,
+                       count_per_term=web_count_per_term,
+                   )
+                   fetch_cache[web_fetch_key] = (web_reviews, web_skipped, web_error)
+               stage_ms["fetch"] += (time.perf_counter() - t_fetch) * 1000.0
                skipped += web_skipped
                if web_error:
                    st.error(f"Failed to load Web data: {web_error}")
                    st.stop()
                combined_reviews.extend(web_reviews)
 
-
+           t_filter = time.perf_counter()
            deduped_reviews = _dedupe_reviews(combined_reviews)
            selected_reviews = _rank_reviews_for_analysis(deduped_reviews, top_n=int(max_analyzed_reviews))
+           stage_ms["filter"] = (time.perf_counter() - t_filter) * 1000.0
 
 
            if not selected_reviews:
@@ -704,7 +838,11 @@ def main() -> None:
 
 
            with st.spinner("Analyzing reviews..."):
-               results = analyze_reviews(selected_reviews)
+               t_analyze = time.perf_counter()
+               results, analyze_stats = analyze_reviews_cached(selected_reviews, analyze_cache=analyze_cache)
+               stage_ms["analyze"] = (time.perf_counter() - t_analyze) * 1000.0
+               pipeline_cache_stats["analyze_hits"] = int(analyze_stats.get("cache_hits", 0))
+               pipeline_cache_stats["analyze_misses"] = int(analyze_stats.get("cache_misses", 0))
 
 
            st.session_state.analysis_results = {
@@ -725,7 +863,14 @@ def main() -> None:
                    min_negative_mentions=2,
                    risk_lift_threshold=1.6,
                ),
+               "pipeline_diagnostics": {
+                   "stage_ms": {k: round(v, 3) for k, v in stage_ms.items()},
+                   "cache_stats": pipeline_cache_stats,
+                   "timing_generated_at": datetime.now(timezone.utc).isoformat(),
+               },
            }
+           st.session_state.pipeline_cache["fetch"] = fetch_cache
+           st.session_state.pipeline_cache["analyze"] = analyze_cache
 
 
     # ── Company B fetch + analyze ───────────────────────────────────
@@ -768,7 +913,10 @@ def main() -> None:
             st.warning(f"No valid reviews found for {comp_company_name}. Adjust inputs and try again.")
         else:
             with st.spinner(f"Analyzing {comp_company_name} reviews..."):
-                comp_results = analyze_reviews(comp_selected)
+                comp_results, _ = analyze_reviews_cached(
+                    comp_selected,
+                    analyze_cache=st.session_state.pipeline_cache.get("analyze", {}),
+                )
             comp_df_tmp = pd.DataFrame(comp_results)
             st.session_state.comparison_results = {
                 "company_name": comp_company_name,
@@ -795,6 +943,7 @@ def main() -> None:
     deduped_count = state.get("deduped_count", len(rows))
     analyzed_count = state.get("analyzed_count", len(rows))
     reddit_diagnostics = state.get("reddit_diagnostics")
+    pipeline_diagnostics = state.get("pipeline_diagnostics") or {}
 
     df = pd.DataFrame(rows)
     brand_health_summary = state.get("brand_health_summary") or compute_brand_health_summary(df)
@@ -1502,6 +1651,40 @@ def main() -> None:
        dq1, dq2 = st.columns(2)
        dq1.metric("Missing Text In Analyzed", missing_text)
        dq2.metric("Missing/Invalid Date In Analyzed", missing_date)
+
+       if pipeline_diagnostics:
+           with st.expander("Pipeline Performance", expanded=True):
+               stage_ms = pipeline_diagnostics.get("stage_ms", {})
+               cache_stats = pipeline_diagnostics.get("cache_stats", {})
+               p1, p2, p3, p4, p5 = st.columns(5)
+               p1.metric("Fetch ms", f"{float(stage_ms.get('fetch', 0.0)):.1f}")
+               p2.metric("Filter ms", f"{float(stage_ms.get('filter', 0.0)):.1f}")
+               p3.metric("Retrieve ms", f"{float(stage_ms.get('retrieve', 0.0)):.1f}")
+               p4.metric("Analyze ms", f"{float(stage_ms.get('analyze', 0.0)):.1f}")
+               p5.metric("Respond ms", f"{float(stage_ms.get('respond', 0.0)):.1f}")
+
+               fetch_hits = int(cache_stats.get("fetch_hits", 0))
+               fetch_misses = int(cache_stats.get("fetch_misses", 0))
+               analyze_hits = int(cache_stats.get("analyze_hits", 0))
+               analyze_misses = int(cache_stats.get("analyze_misses", 0))
+               retrieve_hits = int(cache_stats.get("retrieve_hits", 0))
+               retrieve_misses = int(cache_stats.get("retrieve_misses", 0))
+               respond_hits = int(cache_stats.get("respond_hits", 0))
+               respond_misses = int(cache_stats.get("respond_misses", 0))
+               total_fetch = fetch_hits + fetch_misses
+               total_analyze = analyze_hits + analyze_misses
+               total_retrieve = retrieve_hits + retrieve_misses
+               total_respond = respond_hits + respond_misses
+               fetch_hit_rate = (fetch_hits / total_fetch * 100.0) if total_fetch else 0.0
+               analyze_hit_rate = (analyze_hits / total_analyze * 100.0) if total_analyze else 0.0
+               retrieve_hit_rate = (retrieve_hits / total_retrieve * 100.0) if total_retrieve else 0.0
+               respond_hit_rate = (respond_hits / total_respond * 100.0) if total_respond else 0.0
+               c1, c2, c3, c4 = st.columns(4)
+               c1.metric("Fetch cache hit rate", f"{fetch_hit_rate:.1f}%")
+               c2.metric("Analyze cache hit rate", f"{analyze_hit_rate:.1f}%")
+               c3.metric("KB retrieve cache hit rate", f"{retrieve_hit_rate:.1f}%")
+               c4.metric("Response draft cache hit rate", f"{respond_hit_rate:.1f}%")
+               st.caption(f"Telemetry generated at: {pipeline_diagnostics.get('timing_generated_at', 'n/a')}")
 
 
        if reddit_diagnostics:
