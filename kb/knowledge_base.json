@@ -1,11 +1,22 @@
 {
-  "brand_name": "",
+  "brand_name": "Etsy",
   "tone_guidelines": [
     "Professional",
     "Empathetic",
     "Concise"
   ],
-  "approved_phrases": [],
-  "avoid_phrases": [],
-  "escalation_rules": []
+  "approved_phrases": [
+    "Thanks for sharing this and flagging the issue.",
+    "We understand how frustrating this can be and want to help resolve it quickly.",
+    "We appreciate the details; they help us investigate faster."
+  ],
+  "avoid_phrases": [
+    "This is not our problem.",
+    "Please wait indefinitely.",
+    "There is nothing we can do."
+  ],
+  "escalation_rules": [
+    "Escalate high-severity delivery, fraud, or account-hold cases within 24 hours.",
+    "Escalate unresolved refund cases after SLA breach."
+  ]
 }

@@ -1,0 +1,43 @@
+{
+  "documents": [
+    {
+      "doc_id": "d1",
+      "text": "etsy order not received shipping delayed and tracking stalled"
+    },
+    {
+      "doc_id": "d2",
+      "text": "etsy refund denied after item not as described case"
+    },
+    {
+      "doc_id": "d3",
+      "text": "seller not responding to etsy messages for order issue"
+    },
+    {
+      "doc_id": "d4",
+      "text": "positive etsy experience fast shipping and accurate listing"
+    }
+  ],
+  "queries": [
+    {
+      "query_id": "q1",
+      "text": "etsy order delayed tracking not updated",
+      "relevant_doc_ids": [
+        "d1"
+      ]
+    },
+    {
+      "query_id": "q2",
+      "text": "refund denied item not as described etsy",
+      "relevant_doc_ids": [
+        "d2"
+      ]
+    },
+    {
+      "query_id": "q3",
+      "text": "etsy seller communication no response",
+      "relevant_doc_ids": [
+        "d3"
+      ]
+    }
+  ]
+}

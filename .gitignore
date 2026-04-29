@@ -3,8 +3,12 @@ __pycache__/
 .env
 .env.local
 .venv/
-utils/reddit_affiliate_filter.py
-utils/keyword_diagnostics.py
+# utils/reddit_affiliate_filter.py
+# utils/keyword_diagnostics.py
 # .dockerignore
 triage_history/
 #triage_agent.py 
+frontend/
+data/retrieval_eval_report.openai.json
+data/retrieval_eval_report.tfidf.json
+data/retrieval_eval_report.json

@@ -1,0 +1,22 @@
+{
+  "num_documents": 320,
+  "num_queries": 1280,
+  "median_relevant_docs_per_query": 3.0,
+  "max_relevant_docs_per_query": 3,
+  "min_relevant_docs_per_query": 3,
+  "split_counts": {
+    "train": 895,
+    "test": 193,
+    "dev": 192
+  },
+  "tag_counts": {
+    "lexical": 320,
+    "paraphrase": 320,
+    "intent": 320,
+    "noisy": 160,
+    "acronym": 161
+  },
+  "median_hard_negatives_per_query": 12.0,
+  "min_hard_negatives_per_query": 12,
+  "quality_gate_status": "passed"
+}
